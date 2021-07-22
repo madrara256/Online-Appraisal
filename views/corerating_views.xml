@@ -1,0 +1,45 @@
+<odoo>
+	<data>
+		<record model="ir.ui.view" id="corerating_tree">
+			<field name="name">SECTION A: RATINGS</field>
+			<field name="model">core.rating</field>
+			<field name="arch" type="xml">
+				<tree>
+					<field name="name"/>
+					<field name="range_from"/>
+					<field name="range_to"/>
+				</tree>
+			</field>
+		</record>
+
+		<record model="ir.ui.view" id="corerating_form">
+			<field name="name">SECTION A: RATING</field>
+			<field name="model">core.rating</field>
+			<field name="arch" type="xml">
+				<form>
+					<sheet>
+						<group>
+							<group>
+								<field name="name"/>
+							</group>
+							<group>
+								<field name="range_from" placeholder="From e.g 9.5"/>
+								<field name="range_to" placeholder="To e.g 10.0"/>
+							</group>
+						</group>
+					</sheet>
+				</form>
+			</field>
+		</record>
+
+		<record model="ir.actions.act_window" id="corerating_action">
+	      <field name="name">SECTION A: RATINGS</field>
+	      <field name="res_model">core.rating</field>
+	      <field name="view_mode">tree,form</field>
+	    </record>
+
+	    <menuitem name="SECTION A RATINGS" id="pmt.keyperform" parent="pmt.config"
+              action="corerating_action" sequence="1"/>
+
+	</data>
+</odoo>

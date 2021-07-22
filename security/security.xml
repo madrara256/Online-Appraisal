@@ -1,0 +1,189 @@
+<odoo>
+	<data>
+		<!-- User Groups -->
+
+		<record id="pmt_category" model="ir.module.category">
+			<field name="name">Performance &amp; Appraisal</field>
+			<field name="description">description</field>
+		</record>
+
+		<record id="pmt_user" model="res.groups">
+			<field name="name">Officer</field>
+			<field name="category_id" ref="pmt_category"/>
+			<field name="comment">User Creates</field>
+		</record>
+
+		<record id="pmt_officer" model="res.groups">
+			<field name="name">Manager</field>
+			<field name="category_id" ref="pmt_category"/>
+			<field name="comment">Manager Creates</field>
+		</record>
+
+		<record id="pmt_manager" model="res.groups">
+			<field name="name">Head Of Department(Support Functions)</field>
+			<field name="category_id" ref="pmt_category"/>
+			<field name="comment">Head Of Department Creates(Support Functions)</field>
+		</record>
+
+		<record id="pmt_manager_others" model="res.groups">
+			<field name="name">Head Of Department(Business Function)</field>
+			<field name="category_id" ref="pmt_category"/>
+			<field name="comment">Head Of Department Creates(Others)</field>
+		</record>
+
+		<record id="pmt_coo" model="res.groups">
+			<field name="name">COO Function</field>
+			<field name="category_id" ref="pmt_category"/>
+			<field name="comment">Head Of Department Creates</field>
+		</record>
+
+		<record id="pmt_ed" model="res.groups">
+			<field name="name">ED Function</field>
+			<field name="category_id" ref="pmt_category"/>
+			<field name="comment">ED Creates</field>
+		</record>
+
+		<record id="pmt_md" model="res.groups">
+			<field name="name">MD Function</field>
+			<field name="category_id" ref="pmt_category"/>
+			<field name="comment">MD Creates/Assesses Appraisals</field>
+		</record>
+
+		<record id="pmt_other_direct_md_functions" model="res.groups">
+			<field name="name">CFO/CLO/CCO/CRO/Chief HR/CIA/HOD Compliance</field>
+			<field name="category_id" ref="pmt_category"/>
+			<field name="comment">Submits Appraisal to MD/CEO</field>
+		</record>
+
+		
+		<record id="pmt_hr" model="res.groups">
+			<field name="name">Human Resource</field>
+			<field name="category_id" ref="pmt_category"/>
+			<field name="comment">Human Resource Creates</field>
+		</record>
+
+		<record id="pmt_super_admin" model="res.groups">
+			<field name="name">Super Admin</field>
+			<field name="category_id" ref="pmt_category"/>
+			<field name="comment">Super Admin Oversees</field>
+		</record>
+
+		<!-- Record Rules -->
+		<record id="property_rule_officer" model="ir.rule">
+			<field name="name">Officer Rules</field>
+			<field name="model_id" ref="pmt.model_pmt_main"/>
+			<field name="groups" eval="[(4,ref('pmt.pmt_user'))]"/>
+			<field name="perm_read" eval="1"/>
+		    <field name="perm_write" eval="0"/>
+		    <field name="perm_create" eval="0"/>
+		    <field name="perm_unlink" eval="0" />
+			<field name="domain_force">[('state', 'in', ['manager', 'hod','ed', 'hr', 'self'])]</field>
+		</record>
+
+		<record id="property_rule_super_admin" model="ir.rule">
+			<field name="name">Super Admin</field>
+			<field name="model_id" ref="pmt.model_pmt_main"/>
+			<field name="groups" eval="[(4,ref('pmt.pmt_super_admin'))]"/>
+			<field name="perm_read" eval="1"/>
+		    <field name="perm_write" eval="1"/>
+		    <field name="perm_create" eval="1"/>
+		    <field name="perm_unlink" eval="1" />
+			<field name="domain_force">[]</field>
+		</record>
+
+		<record id="property_rule_manager" model="ir.rule">
+			<field name="name">Manager Rules</field>
+			<field name="model_id" ref="pmt.model_pmt_main"/>
+			<field name="perm_create" eval="1"/>
+			<field name="perm_write" eval="0"/>
+			<field name="perm_read" eval="1"/>
+			<field name="perm_unlink" eval="0"/>
+			<field name="domain_force">
+				[
+					'|', '|',('name', '=', user.id),
+					('line_manager', '=', user.id),
+					('state', 'in', ['manager', 'self'])
+				]
+			</field>
+			<field name="groups" eval="[(4,ref('pmt.pmt_officer'))]"/>
+		</record>
+
+		<record id="property_rule_hod_others" model="ir.rule">
+			<field name="name">HOD Business Function</field>
+			<field name="model_id" ref="pmt.model_pmt_main"/>
+			<field name="perm_create" eval="0"/>
+			<field name="perm_write" eval="0"/>
+			<field name="perm_read" eval="1"/>
+			<field name="perm_unlink" eval="0"/>
+			<field name="domain_force">
+				[
+					'|',('name', '=', user.id),('department_head', '=', user.id)
+									]
+			</field>
+			<field name="groups" eval="[(4,ref('pmt.pmt_manager_others'))]"/>
+		</record>
+
+
+		<!-- <record id="property_rule_hod" model="ir.rule">
+			<field name="name">Head Of Department Rules</field>
+			<field name="model_id" ref="model_pmt_main"/>
+			<field name="perm_create" eval="1"/>
+			<field name="perm_write" eval="1"/>
+			<field name="perm_read" eval="1"/>
+			<field name="perm_unlink" eval="0"/>
+			<field name="domain_force">
+				[
+					'|',('department_head', '=', user.id),('state', 'in', ['hod', 'self'])
+				]
+			</field>
+			<field name="groups" eval="[(4,ref('pmt.pmt_manager'))]"/>
+		</record> -->
+
+		<record id="property_rule_coo" model="ir.rule">
+			<field name="name">COO Rules</field>
+			<field name="model_id" ref="pmt.model_pmt_main"/>
+			<field name="perm_create" eval="1"/>
+			<field name="perm_write" eval="1"/>
+			<field name="perm_read" eval="1"/>
+			<field name="perm_unlink" eval="0"/>
+			<field name="domain_force">
+				[
+					'|',('state', '=', 'coo'),
+						('name','=',user.id)
+				]
+			</field>
+			<field name="groups" eval="[(4,ref('pmt.pmt_coo'))]"/>
+		</record>
+
+
+		<record id="property_rule_hr" model="ir.rule">
+			<field name="name">Human Resource Rules</field>
+			<field name="model_id" ref="model_pmt_main"/>
+			<field name="perm_create" eval="0"/>
+			<field name="perm_write" eval="0"/>
+			<field name="perm_read" eval="1"/>
+			<field name="perm_unlink" eval="0"/>
+			<field name="domain_force">
+				[
+					('state', '=', 'hr'),('name', '!=', user.id)
+				]
+			</field>
+			<field name="groups" eval="[(4,ref('pmt.pmt_hr'))]"/>
+		</record>
+
+		<!-- <record id="property_rule_ed" model="ir.rule">
+			<field name="name">ED Rules</field>
+			<field name="model_id" ref="model_pmt_main"/>
+			<field name="perm_create" eval="1"/>
+			<field name="perm_write" eval="1"/>
+			<field name="perm_read" eval="1"/>
+			<field name="perm_unlink" eval="0"/>
+			<field name="domain_force">
+				[
+					('state', '=', 'ed')
+				]
+			</field>
+			<field name="groups" eval="[(4,ref('pmt.pmt_ed'))]"/>
+		</record> -->
+	</data>
+</odoo>

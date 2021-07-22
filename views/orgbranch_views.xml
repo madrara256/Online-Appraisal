@@ -1,0 +1,45 @@
+<odoo>
+	<data>
+		<record model="ir.ui.view" id="orgbranch_tree">
+			<field name="name">Organization Branches</field>
+			<field name="model">org.branch</field>
+			<field name="arch" type="xml">
+				<tree>
+					<field name="name"/>
+					<field name="mobile"/>
+					<field name="phone"/>
+				</tree>
+			</field>
+		</record>
+
+		<record model="ir.ui.view" id="orgbranch_form">
+			<field name="name">Organization Branch</field>
+			<field name="model">org.branch</field>
+			<field name="arch" type="xml">
+				<form>
+					<sheet>
+						<group>
+							<group>
+								<field name="name"/>
+							</group>
+							<group>
+								<field name="mobile"/>
+								<field name="phone"/>
+							</group>
+						</group>
+					</sheet>
+				</form>
+			</field>
+		</record>
+
+		<record model="ir.actions.act_window" id="orgbranch_action">
+	      <field name="name">Organization Branchs</field>
+	      <field name="res_model">org.branch</field>
+	      <field name="view_mode">tree,form</field>
+	    </record>
+
+	    <menuitem name="Organization Branches" id="pmt.orgbranches" parent="pmt.config"
+	    	action="orgbranch_action" sequence="4"/>
+
+	</data>
+</odoo>

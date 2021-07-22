@@ -1,0 +1,42 @@
+<odoo>
+	<data>
+
+		<record model="ir.ui.view" id="corevalues_list">
+			<field name="name">Core Values Perspective</field>
+			<field name="model">pmt.corevalue</field>
+			<field name="arch" type="xml">
+				<tree>
+					<field name="name"/>
+					<field name="description"/>
+				</tree>
+			</field>
+		</record>
+
+		<record model="ir.ui.view" id="corevalues_form">
+			<field name="name">Core Values Perspective</field>
+			<field name="model">pmt.corevalue</field>
+			<field name="arch" type="xml">
+				<form>
+					<sheet>
+						<group>
+							<group>
+								<field name="name"/>
+								<field name="description"/>
+							</group>
+						</group>
+					</sheet>
+				</form>
+			</field>
+		</record>
+
+
+		<record model="ir.actions.act_window" id="corevalues_perspective_action">
+	      <field name="name">Core Values Perspective</field>
+	      <field name="res_model">pmt.corevalue</field>
+	      <field name="view_mode">tree,form</field>
+	    </record>
+
+	    <menuitem name="Behavioural Perspective" id="pmt.behaviour_perspective" parent="pmt.perspectives"
+              action="corevalues_perspective_action" sequence="2"/>   
+	</data>
+</odoo>

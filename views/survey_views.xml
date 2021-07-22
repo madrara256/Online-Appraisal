@@ -1,0 +1,43 @@
+<odoo>
+	<data>
+		<record model="ir.ui.view" id="survey_category_tree">
+			<field name="name">Survey Category</field>
+			<field name="model">pmt.survey.category</field>
+			<field name="arch" type="xml">
+				<tree>
+					<field name="name"/>
+					<field name="description"/>
+				</tree>
+			</field>
+		</record>
+
+		<record model="ir.ui.view" id="survey_category_form">
+			<field name="name">Survey Category</field>
+			<field name="model">pmt.survey.category</field>
+			<field name="arch" type="xml">
+				<form>
+					<sheet>
+						<group>
+							<group>
+								<field name="name"/>
+								<field name="description"/>
+							</group>
+						</group>
+					</sheet>
+				</form>
+			</field>
+		</record>
+
+
+		<record model="ir.actions.act_window" id="survey_category_action">
+	      <field name="name">Survey Category</field>
+	      <field name="res_model">pmt.survey.category</field>
+	      <field name="view_mode">tree,form</field>
+	    </record>
+
+	    <menuitem name="Survey Category" id="pmt_survey_category" parent="pmt.menu_root"
+              action="survey_category_action" sequence="7"
+              groups="pmt_super_admin"/> 
+
+	</data>
+</odoo>

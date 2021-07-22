@@ -1,0 +1,26 @@
+<odoo>
+	<data>
+		<!-- <record id="pmt_action_res_users" model="ir.actions.act_window">
+			<field name="name">Complete Your Profile</field>
+			<field name="type">ir.actions.act_window</field>
+			<field name="res_model">res.users</field>
+			<field name="view_type">form</field>
+			<field name="view_mode">kanban,form</field>
+			<field name="domain">[('id', '=', uid)]</field>
+			<field name="context">{}</field>
+			<field name="help">
+				Create and manage users that will connect to the system. Users can be deactivated should there be a period of time during which they will/should not connect to the system. You can assign them groups in order to give them specific access to the applications they need to use in the system.
+			</field>
+		</record> -->
+
+		<!-- <record id="pmt_loggedin_user_profile_completion" model="ir.actions.client">
+        	<field name="name">User Profile</field>
+        	<field name="tag">pmt_my_profile_completion</field>
+        	<field name="target">main</field>
+    	</record>
+
+
+		<menuitem name="Complete Profile" id="pmt.dash" parent="pmt.menu_root"
+              action="pmt_loggedin_user_profile_completion" sequence="1"/> -->
+	</data>
+</odoo>

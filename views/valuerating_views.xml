@@ -1,0 +1,51 @@
+<odoo>
+	<data>
+
+		<record model="ir.ui.view" id="valuerating_tree">
+			<field name="name">SECTION B: RATINGS</field>
+			<field name="model">value.rating</field>
+			<field name="arch" type="xml">
+				<tree>
+					<field name="name"/>
+					<field name="range_from"/>
+					<field name="range_to"/>
+					<field name="final_rate_score"/>
+					<field name="description" invisible="0"/>
+				</tree>
+			</field>
+		</record>
+
+		<record model="ir.ui.view" id="valuerating_form">
+			<field name="name">SECTION B: RATING</field>
+			<field name="model">value.rating</field>
+			<field name="arch" type="xml">
+				<form>
+					<sheet>
+						<group>
+							<group>
+								<field name="name"/>
+								<field name="range_from"/>
+								<field name="range_to"/>
+							</group>
+							<group>
+								<field name="final_rate_score"/>
+								<field name="description" invisible="0"/>
+							</group>
+						</group>
+					</sheet>
+				</form>
+			</field>
+		</record>
+
+		<record model="ir.actions.act_window" id="valuerating_action">
+	      <field name="name">SECTION B: RATINGS</field>
+	      <field name="res_model">value.rating</field>
+	      <field name="view_mode">tree,form</field>
+	    </record>
+
+	    <menuitem name="SECTION B RATINGS" id="pmt.behaviour" parent="pmt.config"
+              action="valuerating_action" sequence="2"/>
+
+
+	</data>
+</odoo>

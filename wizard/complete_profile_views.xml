@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+	<data>
+		<record id="complete_profile_user_form" model="ir.ui.view">
+			<field name="name">Complete Your Profile</field>
+			<field name="model">complete.profile.wizard</field>
+			<field name="arch" type="xml">
+				<form string="User Profile Completion form">
+					<sheet>
+						<field name="id" invisible="1"/>
+						<div>
+                            <h4><strong>YOU WILL ONLY BE ABLE TO ACCESS THE APPRAISAL SYSTEM UPON UPDATING YOUR PROFILE >>>> PROCEED TO UPDATE YOUR PROFILE</strong></h4>
+                         </div>
+	                        <group>
+	                        	<group>
+	                        		<div class="oe_title">
+		                            	<label for="current_user" class="oe_edit_only"/>
+		                            	<h4><field name="current_user" required="1"/></h4>
+		                            	<field name="email" invisible="1"/>
+		                            	<label for="login" class="oe_edit_only" string="Email Address"/>
+		                            	<h2><field name="login"/></h2>
+	                        		</div>
+	                        	</group>
+	                        	<group>
+	                        		<field name="job_level"/>
+	                        	</group>
+	                        </group>
+
+	                        <footer>
+	                        	<button name="" string="Proceed to Self Appraisal" class="btn btn-primary active"/>
+	                        </footer>
+
+					</sheet>
+				</form>
+			</field>
+		</record>
+
+		<!---Completion Wizard Action -->
+
+		<record id="profile_completion_wizarc_action" model="ir.actions.act_window">
+			<field name="name">Complete Your Profile</field>
+			<field name="type">ir.actions.act_window</field>
+			<field name="res_model">complete.profile.wizard</field>
+			<field name="view_mode">form</field>
+			<field name="target">new</field>
+		</record>
+
+		<!-- <menuitem name="Complete Profile" id="pmt.maindash" parent="pmt.menu_root" 
+      			sequence="-1" action="profile_completion_wizarc_action"/> -->
+
+	</data>
+</odoo>

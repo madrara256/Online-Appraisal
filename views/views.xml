@@ -1,0 +1,364 @@
+<odoo>
+  <data>
+    <!-- explicit list view definition -->
+    
+    <record model="ir.ui.view" id="pmt.list">
+      <field name="name">Appraisals</field>
+      <field name="model">pmt.main</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="name"/>
+          <field name="position"/>
+          <field name="staff_no"/>
+          <field name="section_a_net_weight"/>
+          <field name="section_a_score" string="RATING"/>
+          <field name="section_b_net_weight"/>
+          <field name="job_level" invisible="1"/>
+          <field name="section_b_average_score" string="RATING"/>
+          <field name="line_manager" attrs="{'invisible': [('job_level', 'in', ['hod','top'])]}"/>
+          <field name="department_head" attrs="{'invisible': [('job_level', 'in', ['hod','top'])]}"/>
+          <field name="state"/>
+          <field name="branch" invisible="1"/>
+          <field name="overall_score"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="pmt_main_form">
+      <field name="name">Appraisals</field>
+      <field name="model">pmt.main</field>
+      <field name="arch" type="xml">
+        <form string="Appraisals">
+          <header>
+            <field name="user_id" invisible="1"/>
+
+            <button string="Submit to Supervisor" name="submit_supervisor" class="oe_highlight"
+              attrs="{'invisible':[('state', '!=', 'self'),('job_level', '=', 'officer')]}" type="object"
+              groups="pmt.pmt_user"/>
+
+            <button string="Send to HOD" name="submit_hod" class="oe_highlight"
+              type="object" attrs="{'invisible':[('state', 'not in', ['self', 'manager'])]}"
+              groups="pmt.pmt_officer"/>
+
+
+            <button string="Submit to ED" name="submit_ed" class="oe_highlight"
+              attrs="{'invisible': [('state', '!=','self')]}" type="object"
+              groups="pmt.pmt_manager_others,pmt.pmt_super_admin"/>
+
+            <button string="Submit to COO" name="submit_coo" class="oe_highlight"
+              attrs="{'invisible': [('state', 'in', ['coo','hr', 'hod'])]}" type="object"
+              groups="pmt.pmt_manager"/>
+
+            <button string="Send to MD/CEO" name="submit_md" class="oe_highlight" type="object"
+              attrs="{'invisible': [('state', 'in',['md', 'hr', 'coo','ed'])]}"
+              groups="pmt.pmt_ed,pmt_other_direct_md_functions.pmt_super_admin,pmt.pmt_coo"/>
+
+
+            <button string="Send for HR Assesments" name="submit_hr" class="oe_highlight"
+              attrs="{'invisible':[('state', '=', 'self')]}" type="object"
+              groups="pmt.pmt_manager,pmt.pmt_ed,pmt.pmt_manager_others,pmt.pmt_coo,pmt.pmt_ed,pmt.pmt_md"/>
+
+            <button string="Send Back" name="sendback" class="oe_highlight"
+              type="object" attrs="{'invisible': ['|',('state', 'in', ['self','hr']),('name', '=','user_id')]}"
+              groups="pmt.pmt_manager,pmt.pmt_ed,pmt.pmt_officer,pmt.pmt_coo,pmt.pmt_manager_others,pmt.pmt_md"/>
+
+            <field name="state" widget="statusbar" statusbar_visible="self,manager,hod,hr"/>
+          </header>
+            <sheet>
+              <group>
+              <group>
+                <field name="user_id" invisible="1"/>
+                <field name="name"/>
+                <field name="position" placeholder="e.g Applications Developer"/>
+                <field name="staff_no" placeholder="STF01254"/>
+                <field name="number_of_years_in_role"/>
+                <field name="job_level" placeholder="Select the Job Level"/>
+              </group>
+              <group>
+                <field name="overall_score" readonly="1"/>
+                <field name="quarter"/>
+                <field name="last_date_review"/>
+                <field name="line_manager" placeholder="Email Address e.g example@housingfinance.com"
+                  attrs="{'required':[('state', 'in',['self']),('job_level', 'in', 'officer')],'invisible':
+                  [('job_level', 'in', ['hod', 'top'])]}" options="{'no_create': True}"/>
+                <field name="department_head" attrs="{'required': [('job_level','in',['manager'])],'invisible': [('job_level', 'in', ['hod','top'])]}" options="{'no_create': True}"/>
+                <field name="branch" options="{'no_create': True}"/>
+              </group>
+            </group>
+            <notebook>
+                <page string="SECTION A:(Core Deliverables)">
+                  <field name="appraisal_line_id" widget="one2many">
+                    <tree editable="button">
+                      <field name="perspective_id" options="{'no_create': True}"/>
+                      <field name="name"/>
+                      <field name="targets"/>
+                      <field name="net_weight" sum="Total Net Weight"/>
+                      <field name="performance_level" invisible="1"/>
+                      <field name="evidence"/>
+                      <field name="actual_level"/>           
+                      <field name="total_score"/>
+                      <field name="weighted_score" sum="weighted_score"/>
+                      <field name="comments"/>
+                    </tree>
+                  </field>
+
+                  <group class="oe_subtotal oe_right">
+                    <field name="section_a_net_weight" class="oe_subtotal_footer_separator"/>
+                    <field name="section_a_score" class="oe_subtotal_footer_separator"/>
+                  </group>
+
+                </page>
+
+                <page string="SECTION B:(Behavioral Assesments)">
+                  <field name="appraisalbh_line_id" widget="one2many">
+                    <tree editable="button">
+                      <field name="perspective_bh_id" options="{'no_create':True}"/>
+                      <field name="name" invisible="1"/>
+                      <field name="targets_bh"/>
+                      <field name="net_weight_bh" invisible="1"/>
+                      <field name="actual_level_bh"/>
+                      <field name="evidence_bh" invisible="1"/>
+                      <field name="total_score_bh" />
+                      <field name="section_rating" />
+                      <field name="weighted_score_bh" invisible="1"/>
+                      <field name="comments"/>
+                    </tree>
+                  </field>
+                  <group class="oe_subtotal oe_right">
+                    <field name="section_b_net_weight" class="oe_subtotal_footer_separator"/>
+                    <field name="section_b_average_score" class="oe_subtotal_footer_separator"/>
+                  </group>
+                </page>
+
+                <page string="SECTION C:(Comments &amp; Remarks)">
+                  <field name="appraisal_survey_line_id" widget="one2many">
+                      <tree editable="button">
+                        <field name="category_id" options="{'no_create':True}"/>
+                        <field name="name" invisible="1"/>
+                        <field name="descriptions" invisible="1"/>
+                        <field name="comments"/>
+                      </tree>
+                  </field>
+                </page>
+              </notebook>
+            </sheet>
+
+            <div class="oe_chatter">
+              <field name="message_follower_ids" help="Follow"/>
+              <field name="message_ids" widget="mail_thread" options="{'post_refresh':'reciepients'}"/>
+            </div>
+        </form>
+
+      </field>
+    </record>
+
+    <!-- actions opening views on models -->
+    
+    <record model="ir.actions.act_window" id="pmt.action_window">
+      <field name="name">Create Self Appraisal</field>
+      <field name="res_model">pmt.main</field>
+      <field name="domain">[('name', '=',uid)]</field>
+      <field name="view_mode">tree,form</field>
+      <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">
+          Appraisals at self assesment stage
+        </p>
+        <p>
+          Individual users are meant to fill and submit to their line managers/supervisors
+        </p>
+      </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="pmt.line_manager_action">
+      <field name="name">Manager Appraisals</field>
+      <field name="res_model">pmt.main</field>
+      <field name="domain">[('state', '=', 'manager'),('line_manager', '=', uid)]</field>
+      <field name="view_mode">tree,form</field>
+      <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">
+          Appraisals to be reviewed by the line manager
+        </p>
+        <p>
+          Appraisals here are to be reviewed and submitted to Heads of Department for further assesment 
+        </p>
+      </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="pmt.hod_action">
+      <field name="name">Appraisals for HOD Assesment</field>
+      <field name="res_model">pmt.main</field>
+      <field name="domain">[('state', '=', 'hod'),('department_head', '=', uid)]</field>
+      <field name="view_mode">tree,form</field>
+      <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">
+          Appraisals at Heads of Department for Review
+        </p>
+        <p>
+          An Appraisal shall be rviewed by the Head Of Department then submitted to Human Resource
+        </p>
+      </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="pmt.md_ed_action">
+      <field name="name">Appraisals for ED's Assesment</field>
+      <field name="res_model">pmt.main</field>
+      <field name="domain">[('state', '=', 'ed')]</field>
+      <field name="view_mode">tree,form</field>
+      <field name="help" type="html">
+        <p class="oe_view_nocontent_smiling_face">
+          Appraisals for ED's Assesments
+        </p>
+        <p>
+          Appraisals from Head Of Departments for Appraisal by ED/MD
+        </p>
+      </field>
+    </record>
+
+
+    <record model="ir.actions.act_window" id="pmt.coo_action">
+      <field name="name">Appraisals for COO's Assesment</field>
+      <field name="res_model">pmt.main</field>
+      <field name="domain">[('state', '=', 'coo')]</field>
+      <field name="view_mode">tree,form</field>
+      <field name="help" type="html">
+        <p class="oe_view_nocontent_smiling_face">
+          Appraisal for COO's Assesment
+        </p>
+        <p>
+          This Window Contains Appraisal to be Assessed by the COO
+        </p>
+      </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="pmt.md_action">
+      <field name="name">Appraisals for MD's Assesment</field>
+      <field name="res_model">pmt.main</field>
+      <field name="domain">[('state', '=', 'md')]</field>
+      <field name="view_mode">tree,form</field>
+      <field name="help" type="html">
+        <p class="oe_view_nocontent_smiling_face">
+          Appraisals for MD/C.E.O's Assesment
+        </p>
+        <p>
+          This window shows appraisals forwarded to the MD/C.E.O
+        </p>
+      </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="pmt.hr_action">
+      <field name="name">Completed Appraisals</field>
+      <field name="res_model">pmt.main</field>
+      <field name="domain">['|',('state', '=', 'hr'),('name', '=', uid)]</field>
+      <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">
+          Appraisals at Human Resource
+        </p>
+        <p>
+          This Window contains all completed Appraisals from the respective departments
+        </p>
+      </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="pmt.super_admin_action">
+      <field name="name">Super Admin</field>
+      <field name="res_model">pmt.main</field>
+      <field name="domain">[]</field>
+      <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">
+          Super Admin View of the Appraisal
+        </p>
+        <p>
+          This Window contains all completed Appraisals from the respective departments
+        </p>
+      </field>
+    </record>
+
+
+    <!-- server action to the one above -->
+    <!--
+    <record model="ir.actions.server" id="pmt.action_server">
+      <field name="name">pmt server</field>
+      <field name="model_id" ref="model_pmt_pmt"/>
+      <field name="state">code</field>
+      <field name="code">
+        action = {
+          "type": "ir.actions.act_window",
+          "view_mode": "tree,form",
+          "res_model": self._name,
+        }
+      </field>
+    </record>
+    -->
+
+    <!-- Top menu item -->
+    
+    <menuitem name="Online Appraisals" id="pmt.menu_root"
+      sequence="-10"/>
+    
+    <!-- menu categories -->
+    
+
+    <menuitem name="Self Appraisal" id="pmt.appraisal" parent="pmt.menu_root" sequence="2"
+              groups="pmt.pmt_user,pmt.pmt_hr,pmt.pmt_super_admin,pmt.pmt_manager_others,pmt.pmt_coo,pmt.pmt_ed,pmt.pmt_officer,pmt.pmt_manager,pmt.pmt_other_direct_md_functions"/>
+    
+    <!-- actions -->
+
+    <menuitem name="Create Appraisal" id="pmt.create" parent="pmt.appraisal"
+              action="pmt.action_window" sequence="2"/>
+
+    <menuitem name="Appraisals for Supervisor Assesment" id="pmt.supervisor_asses" parent="pmt.menu_root"
+              action="pmt.line_manager_action" sequence="3"
+              groups="pmt.pmt_officer,pmt_super_admin"/>
+
+    <menuitem name="Appraisals for HOD Assesment" id="pmt.hod_asses" parent="pmt.menu_root"
+              action="pmt.hod_action" sequence="4"
+              groups="pmt.pmt_manager,pmt_super_admin,pmt_manager_others"/>
+
+    <menuitem name="ED's Assesments" id="pmt.ed_md_asses" parent="pmt.menu_root"
+              action="pmt.md_ed_action" sequence="5"
+              groups="pmt.pmt_ed,pmt_super_admin"/>
+
+
+    <menuitem name="Appraisals for COO's Assesment" id="pmt.coo_asseses" parent="pmt.menu_root"
+              action="pmt.coo_action" sequence="6"
+              groups="pmt.pmt_coo,pmt_super_admin"/>
+
+    <menuitem name="Appraisals for MD/CEO's Assesment" id="pmt.md_asseses" parent="pmt.menu_root"
+              action="pmt.md_action" sequence="7"
+              groups="pmt.pmt_md,pmt_super_admin"/>
+
+
+    <menuitem name="Completed Appraisals" id="pmt.hr_asses" parent="pmt.menu_root"
+              action="pmt.hr_action" sequence="8"
+              groups="pmt.pmt_hr,pmt_super_admin"/>
+
+    <menuitem name="Super Admin View" id="pmt.admin_view" parent="pmt.menu_root"
+              action="pmt.super_admin_action" sequence="38"
+              groups="pmt_super_admin"/>
+
+    <menuitem name="Reporting/Analytics" id="pmt.reporting" parent="pmt.menu_root"
+              action="pmt.hr_action" sequence="40"
+              groups="pmt.pmt_hr,pmt_super_admin"/>
+
+    <menuitem name="Departments" id="pmt.departments" parent="pmt.menu_root"
+              action="hr.open_module_tree_department" sequence="20"
+              groups="pmt.pmt_super_admin"/>
+
+    <menuitem name="Employees" id="pmt.employee" parent="pmt.menu_root"
+              action="hr.open_view_employee_list_my" sequence="11"
+              groups="pmt.pmt_super_admin"/>
+
+
+    <menuitem name="Configurations" id="pmt.config" parent="pmt.menu_root"
+              action="pmt.action_window" sequence="41"
+              groups="pmt.pmt_super_admin"/>
+
+    <menuitem name="Perspective" id="pmt.perspectives" parent="pmt.menu_root"
+               sequence="39"
+               groups="pmt_super_admin"/> 
+
+    <!-- <menuitem name="Work Flows" id="pmt.work_flow" parent="pmt.config"
+              action="pmt.action_window" sequence="3"/> -->
+    
+  </data>
+</odoo>
