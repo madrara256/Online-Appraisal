@@ -79,9 +79,9 @@
                 <field name="quarter"/>
                 <field name="last_date_review"/>
                 <field name="line_manager" placeholder="Email Address e.g example@housingfinance.com"
-                  attrs="{'required':[('state', 'in',['self']),('job_level', 'in', 'officer')],'invisible':
+                  attrs="{'required':['|',('state', 'in',['self']),('job_level', 'in', 'officer')],'invisible':
                   [('job_level', 'in', ['hod', 'top'])]}" options="{'no_create': True}"/>
-                <field name="department_head" attrs="{'required': [('job_level','in',['manager'])],'invisible': [('job_level', 'in', ['hod','top'])]}" options="{'no_create': True}"/>
+                <field name="department_head" attrs="{'required': ['|',('job_level','in',['manager']),('state', '=', 'manager')],'invisible': [('job_level', 'in', ['hod','top'])]}" options="{'no_create': True}"/>
                 <field name="branch" options="{'no_create': True}"/>
               </group>
             </group>
@@ -259,6 +259,22 @@
       </field>
     </record>
 
+    <record model="ir.actions.act_window" id="pmt.hr_all_appraisal_action">
+      <field name="name">All Appraisals</field>
+      <field name="res_model">pmt.main</field>
+      <field name="domain">[]</field>
+      <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">
+          All Appraisals in the System
+        </p>
+        <p>
+          This Window shows all the Appraisals in the system regardless of their states
+        </p>
+      </field>
+    </record>
+
+
+
     <record model="ir.actions.act_window" id="pmt.super_admin_action">
       <field name="name">Super Admin</field>
       <field name="res_model">pmt.main</field>
@@ -330,6 +346,10 @@
 
     <menuitem name="Completed Appraisals" id="pmt.hr_asses" parent="pmt.menu_root"
               action="pmt.hr_action" sequence="8"
+              groups="pmt.pmt_hr,pmt_super_admin"/>
+
+    <menuitem name="All Appraisals" id="pmt.all_appraisals" parent="pmt.menu_root"
+              action="pmt.hr_all_appraisal_action" sequence="9"
               groups="pmt.pmt_hr,pmt_super_admin"/>
 
     <menuitem name="Super Admin View" id="pmt.admin_view" parent="pmt.menu_root"

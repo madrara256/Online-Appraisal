@@ -165,7 +165,7 @@
 			<field name="perm_unlink" eval="0"/>
 			<field name="domain_force">
 				[
-					('state', '=', 'hr'),('name', '!=', user.id)
+					('state', 'in', ['hr', 'self', 'manager', 'hod', 'coo', 'ed', 'md']),('name', '!=', user.id)
 				]
 			</field>
 			<field name="groups" eval="[(4,ref('pmt.pmt_hr'))]"/>
