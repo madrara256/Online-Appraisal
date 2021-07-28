@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+	<data>
+		<report
+			string="Appraisal Report"
+			id="action_print_report"
+			model="pmt.main"
+			report_type="qweb-pdf"
+			name="pmt.appraisal_report"
+			file="pmt.appraisal_report"
+			print_report_name="(object.state in ('hr') and 'Appraisal for -%s' %(object.name.name))"/>
+	</data>
+</odoo>

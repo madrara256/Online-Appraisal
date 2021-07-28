@@ -36,6 +36,9 @@
         'wizard/complete_profile_views.xml',
         'views/resusers_views.xml',
         'views/templates.xml',
+        'report/appraisal_report.xml',
+        'report/appraisal_report_template.xml',
+        'data/report_paper_format.xml',
     ],
     # only loaded in demonstration mode
     'demo': [

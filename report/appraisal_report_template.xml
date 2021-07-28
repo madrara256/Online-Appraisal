@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+
+	<template id="appraisal_report_document">
+		<t t-call="web.external_layout">
+
+
+			<div class="page">
+				<div class="oe_structure"/>
+				<h2>Appraisal Information</h2>
+
+				<table class="table table-sm">
+					<thead>
+						<h2>SECTION A:</h2>
+						<tr>
+							<th><strong>PERSPECTIVE</strong></th>
+							<th><strong>ACTION</strong></th>
+							<th><strong>KPI</strong></th>
+							<th><strong>NET WEIGHT</strong></th>
+							<th><strong>TOTAL</strong></th>
+							<th><strong>WEIGHTED SCORE</strong></th>
+							<th><strong>COMMENTS</strong></th>
+						</tr>
+
+						<h2>SECTION B:</h2>
+						<tr>
+							<th><strong>PERSPECTIVE</strong></th>
+							<th><strong>KPI</strong></th>
+							<th><strong>SCORE</strong></th>
+							<th><strong>RATING</strong></th>
+							<th><strong>COMMENTS</strong></th>
+						</tr>
+					</thead>
+
+					<tbody>
+						<!-- <tr t-foreach="o.appraisal_line_id" t-as="core_line_id">
+							<td>
+								<span t-field="core_line_id.perspective_id"/>
+							</td>
+							<td>
+								<span t-field="core_line_id.name"/>
+							</td>
+							<td>
+								<span t-field="core_line_id.net_weight"/>
+							</td>
+							<td>
+								<span t-field="core_line_id.total_score"/>
+							</td>
+							<td>
+								<span t-field="core_line_id.weighted_score"/>
+							</td>
+							<td>
+								<span t-field="core_line_id.comments"/>
+							</td>
+
+						</tr>
+ -->
+						<!-- <tr t-foreach="o.appraisalbh_line_id" t-as="values_line_id">
+							<td>
+								<span t-field="values_line_id.perspective_bh_id"/>
+							</td>
+							<td>
+								<span t-field="values_line_id.name"/>
+							</td>
+							<td>
+								<span t-field="values_line_id.total_score_bh"/>
+							</td>
+							<td>
+								<span t-field="values_line_id.section_rating"/>
+							</td>
+							<td>
+								<span t-field="values_line_id.comments"/>
+							</td>
+							
+						</tr> -->
+					</tbody>
+				</table>
+
+			</div>
+		</t>
+	</template>
+
+	<template id="appraisal_report">
+		<t t-call="web.html_container">
+			<t t-foreach="doc" t-as="o">
+				<t t-call="pmt.appraisal_report_document" t-lang="o.partner_id.lang"/>
+			</t>
+		</t>
+	</template>
+</odoo>

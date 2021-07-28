@@ -13,13 +13,25 @@ class pmt(models.Model):
 	#DATABASE
 	#-----------------------------------
 
+
+	@api.multi
+	@api.constrains('appraisalbh_line_id')
+	def check_exist_aspect_in_line(self):
+		for appraisal in self:
+			exist_aspect_list = []
+			for line in appraisal.appraisalbh_line_id:
+				if line.perspective_bh_id.id in exist_aspect_list:
+					raise ValidationError(_('BEHAVIORAL ASPECTS CAN NOT BE DUPLICATED \n'+
+						'PLEASE SELECT ANOTHER UNIQUE ASPECT!'))
+				exist_aspect_list.append(line.perspective_bh_id.id)
+
 	name = fields.Many2one('res.users',string='Employee Name', track_visibility="onchange", 
 		default=lambda self: self.env.user.id, readonly=True)
 	quarter = fields.Selection(
 		[
 			('mid', 'Mid-Year Appraisals')
 		],
-		string='Apprisal-Duration', default='mid', required=True, readonly=True)
+		string='Apprisal-Duration', default='mid', required=True,)
 	appraisal_line_id = fields.One2many("appraisal.line", "appraisal_id", string="Initial Task") 
 	appraisal_survey_line_id = fields.One2many('pmt.survey', 'appraisal_survey_id', string="Survey")
 	appraisalbh_line_id = fields.One2many('appraisalbh.line','appraisalbh_id', string="Initial Task")
@@ -42,6 +54,7 @@ class pmt(models.Model):
 	branch = fields.Many2one('org.branch',string='Deployment Branch')
 	staff_no = fields.Char(string="Staff No.", track_visibility="onchange", required=True)
 	department_head = fields.Many2one('res.users',string='Head Of Department')
+	partner_id = fields.Many2one('res.partner', string='Partner')
 
 	job_level = fields.Selection(
 		[
@@ -115,6 +128,8 @@ class pmt(models.Model):
 	section_b_average_score = fields.Float(string='SECTION B: RATING', compute='_compute_section_b_score' 
 		,store=True)
 
+
+	
 	@api.depends('section_a_score', 'section_b_average_score')
 	def _compute_overall_score(self):
 		for record in self:
@@ -141,14 +156,14 @@ class pmt(models.Model):
 					print('LATEST RECORD DATE: '+str(latest_record_date))
 					return latest_record_date
 
-	#ltime_record = fields.Datetime(string='Latest Record', default=_check_existing_record_under_current_user)
-
 	#-------------------------------------
 	# OVERRIDE THE ORM
 	#-------------------------------------
 
 	@api.model
 	def create(self, values):
+		all_chosen_aspects = self.env['appraisalbh.line'].search([])
+		
 		records_under_profile = self.env['pmt.main'].search([('name', '=', self.env.uid)])
 		if records_under_profile:
 			raise ValidationError(_('There is an Existing Appraisal Record Ongoing Under your profile \n'+
@@ -159,7 +174,7 @@ class pmt(models.Model):
 	@api.multi
 	def write(self, values):
 		logged_in_user = self.env.uid
-		if self.state == 'hr':
+		if self.state == 'hr' and not self.env['res.users'].has_group('pmt.pmt_hr'):
 			raise ValidationError(_('This record can no longer be Modified\n'+
 				'Please Contact the Systems Administrator'))
 
@@ -171,7 +186,7 @@ class pmt(models.Model):
 			raise AccessError(_('You are no longer Authorized to Modify this File \n'+
 				'Please Contact your Systems Administrator'))
 
-		if self.env['res.users'].has_group('pmt.pmt_manager') and self.state not in ['self']:
+		if self.env['res.users'].has_group('pmt.pmt_manager') and self.state not in ['self', 'hod']:
 			raise UserError(_('You are no longer Authorized to Modify this File \n'+
 				'Please Contact your Systems Administrator'))
 
@@ -192,7 +207,7 @@ class pmt(models.Model):
 				'Please Contact your Systems Administrator'))
 
 		rec = super(pmt, self).write(values)
-
+		
 		return rec
 
 	@api.multi
@@ -216,8 +231,18 @@ class pmt(models.Model):
 				print('NET WEIGHT IS '+str(subtotal_weight))
 				record.section_a_percentage_score = subtotal_weight
 
+	@api.depends('appraisalbh_line_id.net_weight_bh')
+	def check_all_aspects_weight(self):
+		for record in self:
+			subtotal_weight = 0.0
+			for weight in record.appraisalbh_line_id:
+				subtotal_weight += weight.net_weight_bh
+				print('SECTION B NET WEIGHT IS '+str(subtotal_weight))
+				record.section_b_aspects = subtotal_weight
+
 	section_a_percentage_score = fields.Integer(string='Overall Score', compute='check_total_net_weight', store=True)
 
+	section_b_aspects = fields.Integer(string='Behavioral Aspects', compute='check_all_aspects_weight', store=True)
 
 	@api.multi
 	def submit_supervisor(self):
@@ -225,6 +250,9 @@ class pmt(models.Model):
 			if record.section_a_percentage_score < 100 or record.section_a_percentage_score > 100:
 				raise ValidationError(_('SECTION A OVERRALL PERCENTAGE IS NOT VALID \n'+
 						'REQUIRED VALID PERCENTAGE IS 100%'))
+			elif record.section_b_aspects < 20 or record.section_b_aspects > 20:
+				raise ValidationError(_('SECTION B OVERRALL WEIGHT IS NOT VALID \n'+
+					'CHOOSE ALL THE BEHAVIORAL ASPECTS,(20) '))
 			record.write({'state':'manager'})
 
 	@api.multi
@@ -233,6 +261,9 @@ class pmt(models.Model):
 			if record.section_a_percentage_score < 100 or record.section_a_percentage_score > 100:
 				raise ValidationError(_('SECTION A OVERRALL PERCENTAGE IS NOT VALID \n'+
 						'REQUIRED VALID PERCENTAGE IS 100%'))
+			elif record.section_b_aspects < 20 or record.section_b_aspects > 20:
+				raise ValidationError(_('SECTION B OVERRALL WEIGHT IS NOT VALID \n'+
+					'CHOOSE ALL THE BEHAVIORAL ASPECTS,(20) '))
 			record.write({'state':'hod'})
 
 	@api.multi
@@ -241,6 +272,9 @@ class pmt(models.Model):
 			if record.section_a_percentage_score < 100 or record.section_a_percentage_score > 100:
 				raise ValidationError(_('SECTION A OVERRALL PERCENTAGE IS NOT VALID \n'+
 						'REQUIRED VALID PERCENTAGE IS 100%'))
+			elif record.section_b_aspects < 20 or record.section_b_aspects > 20:
+				raise ValidationError(_('SECTION B OVERRALL WEIGHT IS NOT VALID \n'+
+					'CHOOSE ALL THE BEHAVIORAL ASPECTS,(20) '))
 			record.write({'state':'ed'})
 
 	@api.multi
@@ -249,6 +283,9 @@ class pmt(models.Model):
 			if record.section_a_percentage_score < 100 or record.section_a_percentage_score > 100:
 				raise ValidationError(_('SECTION A OVERRALL PERCENTAGE IS NOT VALID \n'+
 						'REQUIRED VALID PERCENTAGE IS 100%'))
+			elif record.section_b_aspects < 20 or record.section_b_aspects > 20:
+				raise ValidationError(_('SECTION B OVERRALL WEIGHT IS NOT VALID \n'+
+					'CHOOSE ALL THE BEHAVIORAL ASPECTS,(20) '))
 			record.write({'state': 'coo'})
 
 	@api.multi
@@ -257,6 +294,9 @@ class pmt(models.Model):
 			if record.section_a_percentage_score < 100 or record.section_a_percentage_score > 100:
 				raise ValidationError(_('SECTION A OVERRALL PERCENTAGE IS NOT VALID \n'+
 					'REQUIRED VALID PERCENTAGE IS 100%'))
+			elif record.section_b_aspects < 20 or record.section_b_aspects > 20:
+				raise ValidationError(_('SECTION B OVERRALL WEIGHT IS NOT VALID \n'+
+					'CHOOSE ALL THE BEHAVIORAL ASPECTS,(20) '))
 			record.write({'state': 'md'})
 
 
@@ -266,11 +306,16 @@ class pmt(models.Model):
 			if record.section_a_percentage_score < 100 or record.section_a_percentage_score > 100:
 				raise ValidationError(_('SECTION A OVERRALL PERCENTAGE IS NOT VALID \n'+
 						'REQUIRED VALID PERCENTAGE IS 100%'))
+			elif record.section_b_aspects < 20 or record.section_b_aspects > 20:
+				raise ValidationError(_('SECTION B OVERRALL WEIGHT IS NOT VALID \n'+
+					'CHOOSE ALL THE BEHAVIORAL ASPECTS,(20) '))
 			record.write({'state':'hr'})
 
 	@api.multi
 	def sendback(self):
 		for record in self:
+			record_user = self.env['res.users'].browse(record.name.id)
+			print('Record Owner Is '+str(record_user.id))
 			if record.state == 'manager' and record.job_level == 'officer':
 				record.write({'state': 'self'})
 			if record.state == 'hod' and record.job_level == 'manager':
@@ -281,6 +326,19 @@ class pmt(models.Model):
 				record.write({'state':'self'})
 			if record.state in ['coo', 'ed', 'md']:
 				record.write({'state': 'self'})
+			if record.state in ['hr']:
+				if record_user.has_group('pmt.pmt_user') or record_user.has_group('pmt.pmt_officer'):
+					record.write({'state': 'hod'})
+				if record_user.has_group('pmt.pmt_manager'):
+					record.write({'state': 'coo'})
+				if record_user.has_group('pmt.pmt_manager_others'):
+					record.write({'state':'ed'})
+				if record_user.has_group('pmt.pmt_coo') or record_user.has_group('pmt.pmt_other_direct_md_functions'):
+					record.write({'state': 'md'})
+
+	@api.multi
+	def print_appraisal(self):
+		return self.env.ref('pmt.action_print_report').report_action(self)
 
 	#---------------------------------------
 	#MESSAGING
@@ -347,7 +405,7 @@ class pmt_appraisal_line(models.Model):
 		perspective_bh_id = fields.Many2one("pmt.corevalue", string="Perspective")
 
 		targets_bh = fields.Html(related='perspective_bh_id.description',string="Target & Measure/KPI")
-		net_weight_bh = fields.Integer(string="Net Weight")
+		net_weight_bh = fields.Integer(related='perspective_bh_id.net_score',string="Net Weight")
 
 		section_rating = fields.Integer(string="Ratings",track_visibility="onchange")
 
@@ -376,4 +434,4 @@ class pmt_appraisal_line(models.Model):
 					section_rating = self.env['value.rating'].search([])
 					for rate in section_rating:
 						if record.total_score_bh >= rate.range_from and record.total_score_bh <= rate.range_to:
-							record.section_rating = rate.name
+							record.section_rating = rate.name	
