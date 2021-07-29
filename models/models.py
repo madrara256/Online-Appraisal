@@ -39,8 +39,10 @@ class pmt(models.Model):
 	state = fields.Selection(
 		[
 			('self', 'Self Assesment'),
+			('supervisor', 'Supervisor'),
 			('manager', 'Manager Assesment'),
-			('hod', 'Department Head Assesment'),
+			('mbp', 'Manager Branch Performance'),
+			('hod', 'Department Head'),
 			('coo', 'COO\'s Assesment'),
 			('ed', 'ED\'s Assesment'),
 			('md', 'MD\'s Assesment'),
@@ -50,16 +52,29 @@ class pmt(models.Model):
 	position = fields.Char(string='Position/Role', track_visibility="onchange")
 	number_of_years_in_role = fields.Char(string='Number Of Years In Current Role')
 	last_date_review = fields.Date(string='Date Of Last Review')
-	line_manager = fields.Many2one('res.users',string='Manager/Supervisor')
+	line_manager = fields.Many2one('res.users',string='Manager/Branch Manager')
 	branch = fields.Many2one('org.branch',string='Deployment Branch')
 	staff_no = fields.Char(string="Staff No.", track_visibility="onchange", required=True)
-	department_head = fields.Many2one('res.users',string='Head Of Department')
+	department_head = fields.Many2one('res.users',string='Department Head')
+	bom = fields.Many2one('res.users',string='Supervisor(BOM)')
+	mbp = fields.Many2one('res.users', string='Manager Branch Performance')
 	partner_id = fields.Many2one('res.partner', string='Partner')
+
+
+	branch_value_holder = fields.Char(string='Placeholder', onchange='track_visibility')
+
+	@api.onchange('branch')
+	def _onchange_branch_id(self):
+		for record in self:
+			if record.branch:
+				print('********Branch Value is Changing**********')
+				record.branch_value_holder = record.branch.name
 
 	job_level = fields.Selection(
 		[
 			('officer', 'Officer'),
 			('manager', 'Manager'),
+			('mbp', 'Branch Performance Manager'),
 			('hod', 'Head Of Department'),
 			('top', 'COO/ED/CFO/CCO/CRO(Chief Risk Officer)/Head Compliance/CIA(Chief Internal Auditor)')
 		], string='Job Level', required=True, default='')
@@ -176,14 +191,18 @@ class pmt(models.Model):
 		logged_in_user = self.env.uid
 		if self.state == 'hr' and not self.env['res.users'].has_group('pmt.pmt_hr'):
 			raise ValidationError(_('This record can no longer be Modified\n'+
-				'Please Contact the Systems Administrator'))
+				'Please Contact the Systems Administrator!'))
 
 		if self.env['res.users'].has_group('pmt.pmt_user') and self.state not in ['self']:
 			raise AccessError(_('You are no longer Authorized to Modify this File \n'+
 				'Please Contact your Systems Administrator'))
 		
-		if self.env['res.users'].has_group('pmt.pmt_officer') and self.state not in ['self', 'manager']:
+		if self.env['res.users'].has_group('pmt.pmt_officer') and self.state not in ['self', 'manager','supervisor']:
 			raise AccessError(_('You are no longer Authorized to Modify this File \n'+
+				'Please Contact your Systems Administrator------Damn'))
+
+		if self.env['res.users'].has_group('pmt.pmt_bom') and self.state not in ['self', 'supervisor']:
+			raise AccessError(_('You can no longer Modify this Record \n'+
 				'Please Contact your Systems Administrator'))
 
 		if self.env['res.users'].has_group('pmt.pmt_manager') and self.state not in ['self', 'hod']:
@@ -244,16 +263,33 @@ class pmt(models.Model):
 
 	section_b_aspects = fields.Integer(string='Behavioral Aspects', compute='check_all_aspects_weight', store=True)
 
+
 	@api.multi
 	def submit_supervisor(self):
+		for record in self:
+			all_branches = self.env['org.branch'].search([])
+			if record.section_a_percentage_score < 100 or record.section_a_percentage_score > 100:
+				raise ValidationError(_('SECTION A OVERRALL PERCENTAGE IS NOT VALID \n'+
+						'REQUIRED VALID PERCENTAGE IS 100%'))
+			if record.section_b_aspects < 20 or record.section_b_aspects > 20:
+				raise ValidationError(_('SECTION B OVERRALL WEIGHT IS NOT VALID \n'+
+					'CHOOSE ALL THE BEHAVIORAL ASPECTS,(20) '))
+			if record.branch.name == "Head Office":
+				record.write({'state':'manager'})
+			else:
+				record.write({'state': 'supervisor'})
+
+	@api.multi
+	def bom_submit_manager(self):
 		for record in self:
 			if record.section_a_percentage_score < 100 or record.section_a_percentage_score > 100:
 				raise ValidationError(_('SECTION A OVERRALL PERCENTAGE IS NOT VALID \n'+
 						'REQUIRED VALID PERCENTAGE IS 100%'))
-			elif record.section_b_aspects < 20 or record.section_b_aspects > 20:
+			if record.section_b_aspects < 20 or record.section_b_aspects > 20:
 				raise ValidationError(_('SECTION B OVERRALL WEIGHT IS NOT VALID \n'+
 					'CHOOSE ALL THE BEHAVIORAL ASPECTS,(20) '))
-			record.write({'state':'manager'})
+			record.write({'state': 'manager'})
+
 
 	@api.multi
 	def submit_hod(self):
@@ -261,10 +297,25 @@ class pmt(models.Model):
 			if record.section_a_percentage_score < 100 or record.section_a_percentage_score > 100:
 				raise ValidationError(_('SECTION A OVERRALL PERCENTAGE IS NOT VALID \n'+
 						'REQUIRED VALID PERCENTAGE IS 100%'))
-			elif record.section_b_aspects < 20 or record.section_b_aspects > 20:
+			if record.section_b_aspects < 20 or record.section_b_aspects > 20:
+				raise ValidationError(_('SECTION B OVERRALL WEIGHT IS NOT VALID \n'+
+					'CHOOSE ALL THE BEHAVIORAL ASPECTS,(20) '))
+			if record.branch.name == 'Head Office':
+				record.write({'state':'hod'})
+			else:
+				record.write({'state': 'mbp'})
+
+	@api.multi
+	def mbp_submit(self):
+		for record in self:
+			if record.section_a_percentage_score < 100 or record.section_a_percentage_score > 100:
+				raise ValidationError(_('SECTION A OVERRALL PERCENTAGE IS NOT VALID \n'+
+						'REQUIRED VALID PERCENTAGE IS 100%'))
+			if record.section_b_aspects < 20 or record.section_b_aspects > 20:
 				raise ValidationError(_('SECTION B OVERRALL WEIGHT IS NOT VALID \n'+
 					'CHOOSE ALL THE BEHAVIORAL ASPECTS,(20) '))
 			record.write({'state':'hod'})
+
 
 	@api.multi
 	def submit_ed(self):
@@ -316,8 +367,10 @@ class pmt(models.Model):
 		for record in self:
 			record_user = self.env['res.users'].browse(record.name.id)
 			print('Record Owner Is '+str(record_user.id))
-			if record.state == 'manager' and record.job_level == 'officer':
+			if record.state == 'supervisor' and record.job_level == 'officer':
 				record.write({'state': 'self'})
+			if record.state == 'manager' and record.branch.name == 'Head Office':
+				record.write({'state':'self'})
 			if record.state == 'hod' and record.job_level == 'manager':
 				record.write({'state':'self'})
 			if record.state == 'hod' and record.job_level == 'officer':
@@ -335,6 +388,16 @@ class pmt(models.Model):
 					record.write({'state':'ed'})
 				if record_user.has_group('pmt.pmt_coo') or record_user.has_group('pmt.pmt_other_direct_md_functions'):
 					record.write({'state': 'md'})
+			if record.state in ['mbp'] and record.job_level == 'officer':
+				record.write({'state':'manager'})
+
+			if record.state in ['hod'] and record.job_level == 'mbp':
+				record.write({'state':'mbp'})
+
+			if record.state in ['supervisor'] and record.job_level == 'officer':
+				record.write({'state':'self'})
+			if record.state in ['manager'] and not record.branch.name == 'Head Office':
+				record.write({'state':'supervisor'})
 
 	@api.multi
 	def print_appraisal(self):

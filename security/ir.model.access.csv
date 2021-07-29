@@ -130,6 +130,33 @@ other_direct_access_appraisal_line,appraisal.line,model_appraisal_line,pmt_other
 other_direct_access_pmt_survey,pmt.survey,model_pmt_survey,pmt_other_direct_md_functions,1,1,1,0
 
 
+supervisor_access_pmt_main,pmt.main,model_pmt_main,pmt_bom,1,1,1,0
+supervisor_access_pmt_deliverable_perspective,pmt.perspective,model_pmt_perspective,pmt_bom,1,1,1,0
+supervisor_access_pmt_behaviour_perspective,pmt.corevalue,model_pmt_corevalue,pmt_bom,1,1,1,0
+supervisor_access_pmt_survey_category,pmt.survey.category,model_pmt_survey_category,pmt_bom,1,1,1,0
+supervisor_access_appraisalbh_line,appraisalbh.line,model_appraisalbh_line,pmt_bom,1,1,1,0
+supervisor_access_orgbranch,org.branch,model_org_branch,pmt_bom,1,1,1,0
+supervisor_access_core_rating,core.rating,model_core_rating,pmt_bom,1,1,1,0
+supervisor_access_value_rating,value.rating,model_value_rating,pmt_bom,1,1,1,0
+
+supervisor_access_appraisal_line,appraisal.line,model_appraisal_line,pmt_bom,1,1,1,0
+supervisor_access_pmt_survey,pmt.survey,model_pmt_survey,pmt_bom,1,1,1,0
+
+
+mbp_access_pmt_main,pmt.main,model_pmt_main,pmt_mbp,1,1,1,0
+mbp_access_pmt_deliverable_perspective,pmt.perspective,model_pmt_perspective,pmt_mbp,1,1,1,0
+mbp_access_pmt_behaviour_perspective,pmt.corevalue,model_pmt_corevalue,pmt_mbp,1,1,1,0
+mbp_access_pmt_survey_category,pmt.survey.category,model_pmt_survey_category,pmt_mbp,1,1,1,0
+mbp_access_appraisalbh_line,appraisalbh.line,model_appraisalbh_line,pmt_mbp,1,1,1,0
+mbp_access_orgbranch,org.branch,model_org_branch,pmt_mbp,1,1,1,0
+mbp_access_core_rating,core.rating,model_core_rating,pmt_mbp,1,1,1,0
+mbp_access_value_rating,value.rating,model_value_rating,pmt_mbp,1,1,1,0
+
+mbp_access_appraisal_line,appraisal.line,model_appraisal_line,pmt_mbp,1,1,1,0
+mbp_access_pmt_survey,pmt.survey,model_pmt_survey,pmt_mbp,1,1,1,0
+
+
+
 
 
 

@@ -1,7 +1,5 @@
 <odoo>
   <data>
-    <!-- explicit list view definition -->
-    
     <record model="ir.ui.view" id="pmt.list">
       <field name="name">Appraisals</field>
       <field name="model">pmt.main</field>
@@ -36,10 +34,18 @@
               attrs="{'invisible':[('state', '!=', 'self'),('job_level', '=', 'officer')]}" type="object"
               groups="pmt.pmt_user"/>
 
-            <button string="Send to HOD" name="submit_hod" class="oe_highlight"
+            <button string="Send to HOD/Manager Branch Performance" name="submit_hod" class="oe_highlight"
               type="object" attrs="{'invisible':[('state', 'not in', ['self', 'manager'])]}"
               groups="pmt.pmt_officer"/>
 
+            <button string="Send to Branch Manager" name="bom_submit_manager" class="oe_highlight" type="object"
+              attrs="{'invisible': [('state', '!=', 'supervisor')]}"
+              groups="pmt.pmt_bom"/>
+
+            <button string="Send to Department Head" name="mbp_submit" class="oe_highlight"
+              type="object"
+              attrs="{'invisible': [('state', '!=', 'self')]}"
+              groups="pmt.pmt_mbp"/>
 
             <button string="Submit to ED" name="submit_ed" class="oe_highlight"
               attrs="{'invisible': [('state', '!=','self')]}" type="object"
@@ -56,11 +62,11 @@
 
             <button string="Send for HR Assesments" name="submit_hr" class="oe_highlight"
               attrs="{'invisible':[('state', '=', 'self')]}" type="object"
-              groups="pmt.pmt_manager,pmt.pmt_ed,pmt.pmt_manager_others,pmt.pmt_coo,pmt.pmt_ed,pmt.pmt_md"/>
+              groups="pmt.pmt_manager,pmt.pmt_ed,pmt.pmt_manager_others,pmt.pmt_coo,pmt.pmt_ed,pmt.pmt_md,pmt.pmt_mbp"/>
 
             <button string="Send Back" name="sendback" class="oe_highlight"
               type="object" attrs="{'invisible': ['|',('state', 'in', ['self']),('name', '=','user_id')]}"
-              groups="pmt.pmt_hr,pmt.pmt_manager,pmt.pmt_ed,pmt.pmt_officer,pmt.pmt_coo,pmt.pmt_manager_others,pmt.pmt_md"/>
+              groups="pmt.pmt_hr,pmt.pmt_manager,pmt.pmt_ed,pmt.pmt_officer,pmt.pmt_coo,pmt.pmt_manager_others,pmt.pmt_md,pmt.pmt_bom,pmt.pmt_mbp"/>
 
             <field name="state" widget="statusbar" statusbar_visible="self,manager,hod,hr"/>
           </header>
@@ -73,15 +79,22 @@
                 <field name="staff_no" placeholder="STF01254"/>
                 <field name="number_of_years_in_role"/>
                 <field name="job_level" placeholder="Select the Job Level"/>
+                <field name="branch" options="{'no_create': True}" required="True"/>
               </group>
               <group>
                 <field name="overall_score" readonly="1"/>
                 <field name="quarter"/>
                 <field name="last_date_review"/>
+                <field name="branch_value_holder" invisible="1"/>
+                <field name="bom" attrs="{'invisible': ['|',('branch_value_holder', '=', 'Head Office'),('job_level', 'in', ['manager', 'mbp', 'hod', 'top'])], 'required': [('branch_value_holder', '!=', 'Head Office'),('job_level', 'in', ['officer'])]}" options="{'no_create': True}"/>
+                
                 <field name="line_manager" placeholder="Email Address e.g example@housingfinance.com"
-                  attrs="{'required':['|',('state', 'in',['self']),('job_level', 'in', 'officer')]}" options="{'no_create': True}"/>
-                <field name="department_head" attrs="{'required': ['|',('job_level','in',['manager']),('state', '=', 'manager')]}" options="{'no_create': True}"/>
-                <field name="branch" options="{'no_create': True}"/>
+                  attrs="{'required':[('state', 'in',['self']),('job_level', 'in', 'officer')],'invisible':[('job_level', 'in', ['mbp', 'hod'])]}" options="{'no_create': True}"/>
+
+                <field name="mbp" attrs="{'invisible': ['|',('branch_value_holder', '=', 'Head Office'),('job_level', 'in', ['mbp', 'hod','top'])], 'required': [('branch_value_holder', '!=', 'Head Office'),('job_level', 'in', ['officer'])]}" options="{'no_create': True}"/>
+
+                <field name="department_head" attrs="{'required': ['|',('job_level','in',['manager', 'mbp']),('state', '=', 'manager')], 'invisible': [('job_level', 'in', ['hod','top'])]}" options="{'no_create': True}"/>
+                
               </group>
             </group>
             <notebook>
@@ -235,7 +248,7 @@
       <field name="domain">[('state', '=', 'md')]</field>
       <field name="view_mode">tree,form</field>
       <field name="help" type="html">
-        <p class="oe_view_nocontent_smiling_face">
+        <p class="o_view_nocontent_smiling_face">
           Appraisals for MD/C.E.O's Assesment
         </p>
         <p>
@@ -272,6 +285,37 @@
       </field>
     </record>
 
+
+    <record model="ir.actions.act_window" id="pmt.bom_action">
+      <field name="name">Appraisals for BOM Assesment</field>
+      <field name="res_model">pmt.main</field>
+      <field name="domain">[('state', '=', 'supervisor'),('bom', '=', uid)]</field>
+      <field name="help" type="html">
+          <p class="o_view_nocontent_smiling_face">
+            Appraisals for Supervisor's Assesments
+          </p>
+          <p>
+            Window for all the Appraisals for Supervisor's Assesment
+          </p>
+
+      </field>
+    </record>
+
+
+    <record model="ir.actions.act_window" id="pmt.mbp_action">
+      <field name="name">Appraisals for Manager Branch Performance Assesment</field>
+      <field name="res_model">pmt.main</field>
+      <field name="domain">['|',('state', '=', 'mbp'),('mbp', '=', uid)]</field>
+      <field name="help" type="html">
+          <p class="o_view_nocontent_smiling_face">
+            Appraisals for Supervisor's Assesments
+          </p>
+          <p>
+            Window for all the Appraisals for Supervisor's Assesment
+          </p>
+
+      </field>
+    </record>
 
 
     <record model="ir.actions.act_window" id="pmt.super_admin_action">
@@ -314,14 +358,15 @@
     
 
     <menuitem name="Self Appraisal" id="pmt.appraisal" parent="pmt.menu_root" sequence="2"
-              groups="pmt.pmt_user,pmt.pmt_hr,pmt.pmt_super_admin,pmt.pmt_manager_others,pmt.pmt_coo,pmt.pmt_ed,pmt.pmt_officer,pmt.pmt_manager,pmt.pmt_other_direct_md_functions"/>
+              groups="pmt.pmt_user,pmt.pmt_hr,pmt.pmt_super_admin,pmt.pmt_manager_others,pmt.pmt_coo,pmt.pmt_ed,pmt.pmt_officer,pmt.pmt_manager,pmt.pmt_other_direct_md_functions,pmt.pmt_bom,pmt.pmt_mbp"/>
     
     <!-- actions -->
 
     <menuitem name="Create Appraisal" id="pmt.create" parent="pmt.appraisal"
-              action="pmt.action_window" sequence="2"/>
+              action="pmt.action_window" sequence="2"
+              groups="pmt.pmt_bom,pmt.pmt_mbp"/>
 
-    <menuitem name="Appraisals for Supervisor Assesment" id="pmt.supervisor_asses" parent="pmt.menu_root"
+    <menuitem name="Appraisals for Manager/BM Assesment" id="pmt.supervisor_asses" parent="pmt.menu_root"
               action="pmt.line_manager_action" sequence="3"
               groups="pmt.pmt_officer,pmt_super_admin"/>
 
@@ -351,6 +396,16 @@
               action="pmt.hr_all_appraisal_action" sequence="9"
               groups="pmt.pmt_hr,pmt_super_admin"/>
 
+    <menuitem name="Appraisals for BOM's Assesment" id="pmt.bom_asses" 
+              parent="pmt.menu_root"
+              action="pmt.bom_action" sequence="13"
+              groups="pmt.pmt_bom"/>
+
+    <menuitem name="Appraisals for MBP Assesment" id="pmt.mbp_asses"
+              parent="pmt.menu_root"
+              action="pmt.mbp_action"
+              groups="pmt.pmt_mbp"/>
+
     <menuitem name="Super Admin View" id="pmt.admin_view" parent="pmt.menu_root"
               action="pmt.super_admin_action" sequence="38"
               groups="pmt_super_admin"/>
@@ -374,10 +429,6 @@
 
     <menuitem name="Perspective" id="pmt.perspectives" parent="pmt.menu_root"
                sequence="39"
-               groups="pmt_super_admin"/> 
-
-    <!-- <menuitem name="Work Flows" id="pmt.work_flow" parent="pmt.config"
-              action="pmt.action_window" sequence="3"/> -->
-    
+               groups="pmt_super_admin"/>    
   </data>
 </odoo>

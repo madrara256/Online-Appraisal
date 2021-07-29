@@ -31,6 +31,12 @@
 			<field name="comment">Head Of Department Creates(Others)</field>
 		</record>
 
+		<record id="pmt_mbp" model="res.groups">
+			<field name="name">MBP</field>
+			<field name="category_id" ref="pmt_category"/>
+			<field name="comment">Manager Branch Performance</field>
+		</record>
+
 		<record id="pmt_coo" model="res.groups">
 			<field name="name">COO Function</field>
 			<field name="category_id" ref="pmt_category"/>
@@ -62,6 +68,12 @@
 			<field name="comment">Human Resource Creates</field>
 		</record>
 
+		<record id="pmt_bom" model="res.groups">
+			<field name="name">Supervisor(BOM)</field>
+			<field name="category_id" ref="pmt_category"/>
+			<field name="comment">Supervisors(BOM) Intermediate at Branches</field>
+		</record>
+
 		<record id="pmt_super_admin" model="res.groups">
 			<field name="name">Super Admin</field>
 			<field name="category_id" ref="pmt_category"/>
@@ -77,7 +89,7 @@
 		    <field name="perm_write" eval="0"/>
 		    <field name="perm_create" eval="0"/>
 		    <field name="perm_unlink" eval="0" />
-			<field name="domain_force">[('state', 'in', ['manager', 'hod','ed', 'hr', 'self'])]</field>
+			<field name="domain_force">[('state', 'in', ['manager', 'hod','ed', 'hr','supervisor','mbp','self'])]</field>
 		</record>
 
 		<record id="property_rule_super_admin" model="ir.rule">
@@ -95,14 +107,14 @@
 			<field name="name">Manager Rules</field>
 			<field name="model_id" ref="pmt.model_pmt_main"/>
 			<field name="perm_create" eval="1"/>
-			<field name="perm_write" eval="0"/>
+			<field name="perm_write" eval="1"/>
 			<field name="perm_read" eval="1"/>
 			<field name="perm_unlink" eval="0"/>
 			<field name="domain_force">
 				[
 					'|', '|',('name', '=', user.id),
 					('line_manager', '=', user.id),
-					('state', 'in', ['manager', 'self'])
+					('state', 'in', ['manager', 'self', 'supervisor'])
 				]
 			</field>
 			<field name="groups" eval="[(4,ref('pmt.pmt_officer'))]"/>
@@ -121,6 +133,21 @@
 									]
 			</field>
 			<field name="groups" eval="[(4,ref('pmt.pmt_manager_others'))]"/>
+		</record>
+
+		<record id="property_rule_mbp" model="ir.rule">
+			<field name="name">MBP Function</field>
+			<field name="model_id" ref="pmt.model_pmt_main"/>
+			<field name="perm_create" eval="0"/>
+			<field name="perm_write" eval="1"/>
+			<field name="perm_read" eval="1"/>
+			<field name="perm_unlink" eval="0"/>
+			<field name="domain_force">
+				[
+					'|','|',('name', '=', user.id),('mbp', '=', user.id),('state', 'in', ['self', 'mbp'])
+				]
+			</field>
+			<field name="groups" eval="[(4,ref('pmt.pmt_mbp'))]"/>
 		</record>
 
 
@@ -165,6 +192,7 @@
 			<field name="perm_unlink" eval="0"/>
 			<field name="domain_force">
 				[
+
 				]
 			</field>
 			<field name="groups" eval="[(4,ref('pmt.pmt_hr'))]"/>
