@@ -94,7 +94,7 @@
                 <field name="mbp" attrs="{'invisible': ['|',('branch_value_holder', '=', 'Head Office'),('job_level', 'in', ['mbp', 'hod','top'])], 'required': [('branch_value_holder', '!=', 'Head Office'),('job_level', 'in', ['officer'])]}" options="{'no_create': True}"/>
 
                 <field name="department_head" attrs="{'required': ['|',('job_level','in',['manager', 'mbp']),('state', '=', 'manager')], 'invisible': [('job_level', 'in', ['hod','top'])]}" options="{'no_create': True}"/>
-                
+
               </group>
             </group>
             <notebook>
@@ -318,6 +318,22 @@
     </record>
 
 
+    <record model="ir.actions.act_window" id="pmt.mbp_branch_action">
+      <field name="name">All Branch Appraisals</field>
+      <field name="res_model">pmt.main</field>
+      <field name="domain">[('mbp', '=', uid)]</field>
+      <field name="help" type="html">
+          <p class="o_view_nocontent_smiling_face">
+            All Branches Appraisals
+          </p>
+          <p>
+            Window for all the Appraisals for all your Branches
+          </p>
+
+      </field>
+    </record>
+
+
     <record model="ir.actions.act_window" id="pmt.super_admin_action">
       <field name="name">Super Admin</field>
       <field name="res_model">pmt.main</field>
@@ -405,6 +421,11 @@
               parent="pmt.menu_root"
               action="pmt.mbp_action"
               groups="pmt.pmt_mbp"/>
+
+    <menuitem name="All Branch Appraisals" id="pmt.branch_appraisals"
+            parent="pmt.menu_root"
+            action="pmt.mbp_branch_action"
+            groups="pmt.pmt_mbp"/>
 
     <menuitem name="Super Admin View" id="pmt.admin_view" parent="pmt.menu_root"
               action="pmt.super_admin_action" sequence="38"
