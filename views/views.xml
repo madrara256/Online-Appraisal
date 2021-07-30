@@ -1,6 +1,6 @@
 <odoo>
   <data>
-    <record model="ir.ui.view" id="pmt.list">
+    <record model="ir.ui.view" id="pmt_tree">
       <field name="name">Appraisals</field>
       <field name="model">pmt.main</field>
       <field name="arch" type="xml">
@@ -91,9 +91,9 @@
                 <field name="line_manager" placeholder="Email Address e.g example@housingfinance.com"
                   attrs="{'required':[('state', 'in',['self']),('job_level', 'in', 'officer')],'invisible':[('job_level', 'in', ['mbp', 'hod'])]}" options="{'no_create': True}"/>
 
-                <field name="mbp" attrs="{'invisible': ['|',('branch_value_holder', '=', 'Head Office'),('job_level', 'in', ['mbp', 'hod','top'])], 'required': [('branch_value_holder', '!=', 'Head Office'),('job_level', 'in', ['officer'])]}" options="{'no_create': True}"/>
+                <field name="mbp" attrs="{'invisible': ['|',('branch_value_holder', '=', 'Head Office'),('job_level', 'in', ['mbp', 'hod','top', ''])], 'required': [('branch_value_holder', '!=', 'Head Office'),('job_level', 'in', ['officer'])]}" options="{'no_create': True}"/>
 
-                <field name="department_head" attrs="{'required': ['|',('job_level','in',['manager', 'mbp']),('state', '=', 'manager')], 'invisible': [('job_level', 'in', ['hod','top'])]}" options="{'no_create': True}"/>
+                <field name="department_head" attrs="{'required': ['|',('job_level','in',['manager', 'mbp']),('state', '=', 'manager')], 'invisible': [('job_level', 'in', ['hod','top', ''])]}" options="{'no_create': True}"/>
 
               </group>
             </group>
@@ -164,13 +164,961 @@
       </field>
     </record>
 
-    <!-- actions opening views on models -->
-    
-    <record model="ir.actions.act_window" id="pmt.action_window">
+    <!-- self appraisal form users -->
+    <record model="ir.ui.view" id="pmt_users_form">
+      <field name="name">Appraisals</field>
+      <field name="model">pmt.main</field>
+      <field name="arch" type="xml">
+        <form string="Appraisals">
+          <header>
+            <field name="user_id" invisible="1"/>
+            <field name="branch_value_holder" invisible="1"/>
+
+            <button string="Submit to Manager" name="submit_supervisor" class="oe_highlight" 
+              type="object" attrs="{'invisible': [('branch_value_holder', '!=', 'Head Office')]}"/>
+
+            <!-- <button string="Submit to Manager" name="bom_submit_manager" class="oe_highlight"
+              type="object" attrs="{'invisible': [('state', '!=', 'supervisor')]}"/>
+
+            <button string="Submit to Manager Branch Performance" name="submit_hod"
+              type="object" attrs="{'invisible':[('branch_value_holder', '=', 'Head Office'),('state', '!=', 'manager')]}" class="oe_highlight"/>
+ -->
+            <button string="Submit to Supervisor(BOM)" name="submit_supervisor" class="oe_highlight" 
+              type="object" attrs="{'invisible': ['|',('branch_value_holder', '=', 'Head Office'),('state', '!=', 'self')]}"/>
+
+            <!-- <button string="Send Back" name="sendback" class="oe_highlight"
+              type="object" attrs="{'invisible': ['|',('state', 'in', ['self']),('name', '=','user_id')]}"/> -->
+
+            <field name="state" widget="statusbar" statusbar_visible="self,supervisor,manager,mbp,hod,hr"
+              />
+          </header>
+            <sheet>
+              <group>
+              <group>
+                <field name="user_id" invisible="1"/>
+                <field name="name"/>
+                <field name="position" placeholder="e.g Applications Developer"/>
+                <field name="staff_no" placeholder="STF01254" required="1"/>
+                <field name="number_of_years_in_role"/>
+                <field name="job_level" placeholder="Select the Job Level" default="officer"/>
+                <field name="branch" options="{'no_create': True}" required="1"/>
+              </group>
+              <group>
+                <field name="overall_score" readonly="1"/>
+                <field name="quarter"/>
+                <field name="last_date_review"/>
+                <field name="branch_value_holder" invisible="1"/>
+                <field name="bom" attrs="{'invisible': [('branch_value_holder', 'in', ['Head Office'])],'required': [('branch_value_holder', 'not in', ['Head Office'])]}"/>
+                <field name="mbp" attrs="{'invisible': [('branch_value_holder', '=', 'Head Office'),('state', '!=', 'manager')]}"/>
+
+                <field name="line_manager" attrs="{'invisible': [('branch_value_holder', 'not in', ['Head Office']),('state', 'not in',['supervisor'])], 'required': ['|',('branch_value_holder', 'in', ['Head Office']),('state', 'in', ['supervisor'])]}"/>
+              </group>
+            </group>
+            <notebook>
+                <page string="SECTION A:(Core Deliverables)">
+                  <field name="appraisal_line_id" widget="one2many">
+                    <tree editable="button">
+                      <field name="perspective_id" options="{'no_create': True}"/>
+                      <field name="name"/>
+                      <field name="targets"/>
+                      <field name="net_weight" sum="Total Net Weight"/>
+                      <field name="performance_level" invisible="1"/>
+                      <field name="evidence"/>
+                      <field name="actual_level"/>           
+                      <field name="total_score"/>
+                      <field name="weighted_score" sum="weighted_score"/>
+                      <field name="comments"/>
+                    </tree>
+                  </field>
+
+                  <group class="oe_subtotal oe_right">
+                    <field name="section_a_net_weight" class="oe_subtotal_footer_separator"/>
+                    <field name="section_a_score" class="oe_subtotal_footer_separator"/>
+                  </group>
+
+                </page>
+
+                <page string="SECTION B:(Behavioral Assesments)">
+                  <field name="appraisalbh_line_id" widget="one2many">
+                    <tree editable="button">
+                      <field name="perspective_bh_id" options="{'no_create':True}"/>
+                      <field name="name" invisible="1"/>
+                      <field name="targets_bh"/>
+                      <field name="actual_level_bh"/>
+                      <field name="evidence_bh" invisible="1"/>
+                      <field name="total_score_bh" />
+                      <field name="section_rating" />
+                      <field name="net_weight_bh" invisible="0"/>
+                      <field name="weighted_score_bh" invisible="1"/>
+                      <field name="comments"/>
+                    </tree>
+                  </field>
+                  <group class="oe_subtotal oe_right">
+                    <field name="section_b_net_weight" class="oe_subtotal_footer_separator"/>
+                    <field name="section_b_average_score" class="oe_subtotal_footer_separator"/>
+                  </group>
+                </page>
+
+                <page string="SECTION C:(Comments &amp; Remarks)">
+                  <field name="appraisal_survey_line_id" widget="one2many">
+                      <tree editable="button">
+                        <field name="category_id" options="{'no_create':True}"/>
+                        <field name="name" invisible="1"/>
+                        <field name="descriptions" invisible="1"/>
+                        <field name="comments"/>
+                      </tree>
+                  </field>
+                </page>
+              </notebook>
+            </sheet>
+
+            <div class="oe_chatter">
+              <field name="message_follower_ids" help="Follow"/>
+              <field name="message_ids" widget="mail_thread" options="{'post_refresh':'reciepients'}"/>
+            </div>
+        </form>
+
+      </field>
+    </record>
+
+
+    <!-- Supervisor Self Appraisal form -->
+    <record model="ir.ui.view" id="pmt_bom_form">
+      <field name="name">Appraisals</field>
+      <field name="model">pmt.main</field>
+      <field name="arch" type="xml">
+        <form string="Appraisals">
+          <header>
+            <field name="user_id" invisible="1"/>
+            <field name="branch_value_holder" invisible="1"/>
+
+            <button string="Send to Branch Manager" name="bom_submit_manager" class="oe_highlight" 
+              type="object"/>
+
+
+            <!-- <button string="Submit to Manager" name="submit_supervisor" class="oe_highlight" 
+              type="object" attrs="{'invisible': [('branch_value_holder', 'not in', ['Head Office'])]}"/>
+
+            <button string="Submit to Supervisor(BOM)" name="submit_supervisor" class="oe_highlight" 
+              type="object" attrs="{'invisible': [('branch_value_holder', 'in', ['Head Office'])]}"/>
+ -->
+            <field name="state" widget="statusbar" statusbar_visible="self,manager,mbp,hod,hr"
+              attrs="{'invisible': [('branch_value_holder', 'in', ['Head Office'])]}"/>
+
+          </header>
+            <sheet>
+              <group>
+              <group>
+                <field name="user_id" invisible="1"/>
+                <field name="name"/>
+                <field name="position" placeholder="e.g Applications Developer"/>
+                <field name="staff_no" placeholder="STF01254" required="1"/>
+                <field name="number_of_years_in_role"/>
+                <field name="job_level" placeholder="Select the Job Level" default="officer"/>
+                <field name="branch" options="{'no_create': True}" required="1"/>
+              </group>
+              <group>
+                <field name="overall_score" readonly="1"/>
+                <field name="quarter"/>
+                <field name="last_date_review"/>
+                <field name="branch_value_holder" invisible="1"/>
+                <!-- <field name="bom" attrs="{'invisible': [('branch_value_holder', 'in', ['Head Office'])],'required': [('branch_value_holder', 'not in', ['Head Office'])]}"/>
+ -->
+                <field name="line_manager" string="Branch Manager" required="1"/>
+              </group>
+            </group>
+            <notebook>
+                <page string="SECTION A:(Core Deliverables)">
+                  <field name="appraisal_line_id" widget="one2many">
+                    <tree editable="button">
+                      <field name="perspective_id" options="{'no_create': True}"/>
+                      <field name="name"/>
+                      <field name="targets"/>
+                      <field name="net_weight" sum="Total Net Weight"/>
+                      <field name="performance_level" invisible="1"/>
+                      <field name="evidence"/>
+                      <field name="actual_level"/>           
+                      <field name="total_score"/>
+                      <field name="weighted_score" sum="weighted_score"/>
+                      <field name="comments"/>
+                    </tree>
+                  </field>
+
+                  <group class="oe_subtotal oe_right">
+                    <field name="section_a_net_weight" class="oe_subtotal_footer_separator"/>
+                    <field name="section_a_score" class="oe_subtotal_footer_separator"/>
+                  </group>
+
+                </page>
+
+                <page string="SECTION B:(Behavioral Assesments)">
+                  <field name="appraisalbh_line_id" widget="one2many">
+                    <tree editable="button">
+                      <field name="perspective_bh_id" options="{'no_create':True}"/>
+                      <field name="name" invisible="1"/>
+                      <field name="targets_bh"/>
+                      <field name="actual_level_bh"/>
+                      <field name="evidence_bh" invisible="1"/>
+                      <field name="total_score_bh" />
+                      <field name="section_rating" />
+                      <field name="net_weight_bh" invisible="0"/>
+                      <field name="weighted_score_bh" invisible="1"/>
+                      <field name="comments"/>
+                    </tree>
+                  </field>
+                  <group class="oe_subtotal oe_right">
+                    <field name="section_b_net_weight" class="oe_subtotal_footer_separator"/>
+                    <field name="section_b_average_score" class="oe_subtotal_footer_separator"/>
+                  </group>
+                </page>
+
+                <page string="SECTION C:(Comments &amp; Remarks)">
+                  <field name="appraisal_survey_line_id" widget="one2many">
+                      <tree editable="button">
+                        <field name="category_id" options="{'no_create':True}"/>
+                        <field name="name" invisible="1"/>
+                        <field name="descriptions" invisible="1"/>
+                        <field name="comments"/>
+                      </tree>
+                  </field>
+                </page>
+              </notebook>
+            </sheet>
+
+            <div class="oe_chatter">
+              <field name="message_follower_ids" help="Follow"/>
+              <field name="message_ids" widget="mail_thread" options="{'post_refresh':'reciepients'}"/>
+            </div>
+        </form>
+
+      </field>
+    </record>
+
+
+
+    <!-- Self Appraisal for Managers -->
+
+    <record model="ir.ui.view" id="pmt_managers_form">
+      <field name="name">Appraisals</field>
+      <field name="model">pmt.main</field>
+      <field name="arch" type="xml">
+        <form string="Appraisals">
+          <header>
+            <field name="user_id" invisible="1"/>
+            <field name="branch_value_holder" invisible="1"/>
+
+            <button string="Submit to HOD/Manager Branch Performance" name="submit_hod" class="oe_highlight" type="object"/>
+            <field name="state" widget="statusbar" statusbar_visible="self,mbp,hod,hr"/>
+
+          </header>
+            <sheet>
+              <group>
+              <group>
+                <field name="user_id" invisible="1"/>
+                <field name="name"/>
+                <field name="position" placeholder="e.g Applications Developer"/>
+                <field name="staff_no" placeholder="STF01254" required="1"/>
+                <field name="number_of_years_in_role"/>
+                <field name="job_level" placeholder="Select the Job Level" default="officer"/>
+                <field name="branch" options="{'no_create': True}" required="1"/>
+              </group>
+              <group>
+                <field name="overall_score" readonly="1"/>
+                <field name="quarter"/>
+                <field name="last_date_review"/>
+                <field name="branch_value_holder" invisible="1"/>
+                <field name="department_head" attrs="{'invisible':[('branch_value_holder', '!=', 'Head Office')], 'required': ['|',('branch_value_holder', '=', 'Head Office')]}"/>
+                <field name="mbp" attrs="{'invisible': [('branch_value_holder', '=', 'Head Office')], 'required': [('branch_value_holder', '!=', 'Head Office')]}"/>
+              </group>
+            </group>
+            <notebook>
+                <page string="SECTION A:(Core Deliverables)">
+                  <field name="appraisal_line_id" widget="one2many">
+                    <tree editable="button">
+                      <field name="perspective_id" options="{'no_create': True}"/>
+                      <field name="name"/>
+                      <field name="targets"/>
+                      <field name="net_weight" sum="Total Net Weight"/>
+                      <field name="performance_level" invisible="1"/>
+                      <field name="evidence"/>
+                      <field name="actual_level"/>           
+                      <field name="total_score"/>
+                      <field name="weighted_score" sum="weighted_score"/>
+                      <field name="comments"/>
+                    </tree>
+                  </field>
+
+                  <group class="oe_subtotal oe_right">
+                    <field name="section_a_net_weight" class="oe_subtotal_footer_separator"/>
+                    <field name="section_a_score" class="oe_subtotal_footer_separator"/>
+                  </group>
+
+                </page>
+
+                <page string="SECTION B:(Behavioral Assesments)">
+                  <field name="appraisalbh_line_id" widget="one2many">
+                    <tree editable="button">
+                      <field name="perspective_bh_id" options="{'no_create':True}"/>
+                      <field name="name" invisible="1"/>
+                      <field name="targets_bh"/>
+                      <field name="actual_level_bh"/>
+                      <field name="evidence_bh" invisible="1"/>
+                      <field name="total_score_bh" />
+                      <field name="section_rating" />
+                      <field name="net_weight_bh" invisible="0"/>
+                      <field name="weighted_score_bh" invisible="1"/>
+                      <field name="comments"/>
+                    </tree>
+                  </field>
+                  <group class="oe_subtotal oe_right">
+                    <field name="section_b_net_weight" class="oe_subtotal_footer_separator"/>
+                    <field name="section_b_average_score" class="oe_subtotal_footer_separator"/>
+                  </group>
+                </page>
+
+                <page string="SECTION C:(Comments &amp; Remarks)">
+                  <field name="appraisal_survey_line_id" widget="one2many">
+                      <tree editable="button">
+                        <field name="category_id" options="{'no_create':True}"/>
+                        <field name="name" invisible="1"/>
+                        <field name="descriptions" invisible="1"/>
+                        <field name="comments"/>
+                      </tree>
+                  </field>
+                </page>
+              </notebook>
+            </sheet>
+
+            <div class="oe_chatter">
+              <field name="message_follower_ids" help="Follow"/>
+              <field name="message_ids" widget="mail_thread" options="{'post_refresh':'reciepients'}"/>
+            </div>
+        </form>
+
+      </field>
+    </record>
+
+
+    <!--Self Appraisal MBP -->
+
+    <record model="ir.ui.view" id="pmt_manager_branch_perform_form">
+      <field name="name">Appraisals</field>
+      <field name="model">pmt.main</field>
+      <field name="arch" type="xml">
+        <form string="Appraisals">
+          <header>
+            <field name="user_id" invisible="1"/>
+            <field name="branch_value_holder" invisible="1"/>
+
+            <button string="Send to Head Of Department" name="mbp_submit" class="oe_highlight"
+              type="object"/>
+
+            <field name="state" widget="statusbar" statusbar_visible="self,hod,hr"/>
+
+          </header>
+            <sheet>
+              <group>
+              <group>
+                <field name="user_id" invisible="1"/>
+                <field name="name"/>
+                <field name="position" placeholder="e.g Applications Developer"/>
+                <field name="staff_no" placeholder="STF01254" required="1"/>
+                <field name="number_of_years_in_role"/>
+                <field name="job_level" placeholder="Select the Job Level" default="officer"/>
+                <field name="branch" options="{'no_create': True}" required="1"/>
+              </group>
+              <group>
+                <field name="overall_score" readonly="1"/>
+                <field name="quarter"/>
+                <field name="last_date_review"/>
+                <field name="branch_value_holder" invisible="1"/>
+                <field name="department_head" required="1"/>
+              </group>
+            </group>
+            <notebook>
+                <page string="SECTION A:(Core Deliverables)">
+                  <field name="appraisal_line_id" widget="one2many">
+                    <tree editable="button">
+                      <field name="perspective_id" options="{'no_create': True}"/>
+                      <field name="name"/>
+                      <field name="targets"/>
+                      <field name="net_weight" sum="Total Net Weight"/>
+                      <field name="performance_level" invisible="1"/>
+                      <field name="evidence"/>
+                      <field name="actual_level"/>           
+                      <field name="total_score"/>
+                      <field name="weighted_score" sum="weighted_score"/>
+                      <field name="comments"/>
+                    </tree>
+                  </field>
+
+                  <group class="oe_subtotal oe_right">
+                    <field name="section_a_net_weight" class="oe_subtotal_footer_separator"/>
+                    <field name="section_a_score" class="oe_subtotal_footer_separator"/>
+                  </group>
+
+                </page>
+
+                <page string="SECTION B:(Behavioral Assesments)">
+                  <field name="appraisalbh_line_id" widget="one2many">
+                    <tree editable="button">
+                      <field name="perspective_bh_id" options="{'no_create':True}"/>
+                      <field name="name" invisible="1"/>
+                      <field name="targets_bh"/>
+                      <field name="actual_level_bh"/>
+                      <field name="evidence_bh" invisible="1"/>
+                      <field name="total_score_bh" />
+                      <field name="section_rating" />
+                      <field name="net_weight_bh" invisible="0"/>
+                      <field name="weighted_score_bh" invisible="1"/>
+                      <field name="comments"/>
+                    </tree>
+                  </field>
+                  <group class="oe_subtotal oe_right">
+                    <field name="section_b_net_weight" class="oe_subtotal_footer_separator"/>
+                    <field name="section_b_average_score" class="oe_subtotal_footer_separator"/>
+                  </group>
+                </page>
+
+                <page string="SECTION C:(Comments &amp; Remarks)">
+                  <field name="appraisal_survey_line_id" widget="one2many">
+                      <tree editable="button">
+                        <field name="category_id" options="{'no_create':True}"/>
+                        <field name="name" invisible="1"/>
+                        <field name="descriptions" invisible="1"/>
+                        <field name="comments"/>
+                      </tree>
+                  </field>
+                </page>
+              </notebook>
+            </sheet>
+
+            <div class="oe_chatter">
+              <field name="message_follower_ids" help="Follow"/>
+              <field name="message_ids" widget="mail_thread" options="{'post_refresh':'reciepients'}"/>
+            </div>
+        </form>
+
+      </field>
+    </record>
+
+
+    <!-- HOD Support Function-->
+    <record model="ir.ui.view" id="pmt_manager_hod_support_form">
+      <field name="name">Appraisals</field>
+      <field name="model">pmt.main</field>
+      <field name="arch" type="xml">
+        <form string="Appraisals">
+          <header>
+            <field name="user_id" invisible="1"/>
+            <field name="branch_value_holder" invisible="1"/>
+
+            <button string="Submit to COO" name="submit_coo" class="oe_highlight"
+              type="object"/>
+
+            <field name="state" widget="statusbar" statusbar_visible="self,coo,hr"/>
+
+          </header>
+            <sheet>
+              <group>
+              <group>
+                <field name="user_id" invisible="1"/>
+                <field name="name"/>
+                <field name="position" placeholder="e.g Applications Developer"/>
+                <field name="staff_no" placeholder="STF01254" required="1"/>
+                <field name="number_of_years_in_role"/>
+                <field name="job_level" placeholder="Select the Job Level" default="officer"/>
+                <field name="branch" options="{'no_create': True}" required="1"/>
+              </group>
+              <group>
+                <field name="overall_score" readonly="1"/>
+                <field name="quarter"/>
+                <field name="last_date_review"/>
+                <field name="branch_value_holder" invisible="1"/>
+              </group>
+            </group>
+            <notebook>
+                <page string="SECTION A:(Core Deliverables)">
+                  <field name="appraisal_line_id" widget="one2many">
+                    <tree editable="button">
+                      <field name="perspective_id" options="{'no_create': True}"/>
+                      <field name="name"/>
+                      <field name="targets"/>
+                      <field name="net_weight" sum="Total Net Weight"/>
+                      <field name="performance_level" invisible="1"/>
+                      <field name="evidence"/>
+                      <field name="actual_level"/>           
+                      <field name="total_score"/>
+                      <field name="weighted_score" sum="weighted_score"/>
+                      <field name="comments"/>
+                    </tree>
+                  </field>
+
+                  <group class="oe_subtotal oe_right">
+                    <field name="section_a_net_weight" class="oe_subtotal_footer_separator"/>
+                    <field name="section_a_score" class="oe_subtotal_footer_separator"/>
+                  </group>
+
+                </page>
+
+                <page string="SECTION B:(Behavioral Assesments)">
+                  <field name="appraisalbh_line_id" widget="one2many">
+                    <tree editable="button">
+                      <field name="perspective_bh_id" options="{'no_create':True}"/>
+                      <field name="name" invisible="1"/>
+                      <field name="targets_bh"/>
+                      <field name="actual_level_bh"/>
+                      <field name="evidence_bh" invisible="1"/>
+                      <field name="total_score_bh" />
+                      <field name="section_rating" />
+                      <field name="net_weight_bh" invisible="0"/>
+                      <field name="weighted_score_bh" invisible="1"/>
+                      <field name="comments"/>
+                    </tree>
+                  </field>
+                  <group class="oe_subtotal oe_right">
+                    <field name="section_b_net_weight" class="oe_subtotal_footer_separator"/>
+                    <field name="section_b_average_score" class="oe_subtotal_footer_separator"/>
+                  </group>
+                </page>
+
+                <page string="SECTION C:(Comments &amp; Remarks)">
+                  <field name="appraisal_survey_line_id" widget="one2many">
+                      <tree editable="button">
+                        <field name="category_id" options="{'no_create':True}"/>
+                        <field name="name" invisible="1"/>
+                        <field name="descriptions" invisible="1"/>
+                        <field name="comments"/>
+                      </tree>
+                  </field>
+                </page>
+              </notebook>
+            </sheet>
+
+            <div class="oe_chatter">
+              <field name="message_follower_ids" help="Follow"/>
+              <field name="message_ids" widget="mail_thread" options="{'post_refresh':'reciepients'}"/>
+            </div>
+        </form>
+
+      </field>
+    </record>
+
+
+
+    <!-- HOD Business Function -->
+    <record model="ir.ui.view" id="pmt_hod_business_form">
+      <field name="name">Appraisals</field>
+      <field name="model">pmt.main</field>
+      <field name="arch" type="xml">
+        <form string="Appraisals">
+          <header>
+            <field name="user_id" invisible="1"/>
+            <field name="branch_value_holder" invisible="1"/>
+
+            <button string="Submit to ED" name="submit_ed" class="oe_highlight"
+              type="object"/>
+
+            <field name="state" widget="statusbar" statusbar_visible="self,ed,hr"/>
+
+          </header>
+            <sheet>
+              <group>
+              <group>
+                <field name="user_id" invisible="1"/>
+                <field name="name"/>
+                <field name="position" placeholder="e.g Applications Developer"/>
+                <field name="staff_no" placeholder="STF01254" required="1"/>
+                <field name="number_of_years_in_role"/>
+                <field name="job_level" placeholder="Select the Job Level" default="officer"/>
+                <field name="branch" options="{'no_create': True}" required="1"/>
+              </group>
+              <group>
+                <field name="overall_score" readonly="1"/>
+                <field name="quarter"/>
+                <field name="last_date_review"/>
+                <field name="branch_value_holder" invisible="1"/>
+              </group>
+            </group>
+            <notebook>
+                <page string="SECTION A:(Core Deliverables)">
+                  <field name="appraisal_line_id" widget="one2many">
+                    <tree editable="button">
+                      <field name="perspective_id" options="{'no_create': True}"/>
+                      <field name="name"/>
+                      <field name="targets"/>
+                      <field name="net_weight" sum="Total Net Weight"/>
+                      <field name="performance_level" invisible="1"/>
+                      <field name="evidence"/>
+                      <field name="actual_level"/>           
+                      <field name="total_score"/>
+                      <field name="weighted_score" sum="weighted_score"/>
+                      <field name="comments"/>
+                    </tree>
+                  </field>
+
+                  <group class="oe_subtotal oe_right">
+                    <field name="section_a_net_weight" class="oe_subtotal_footer_separator"/>
+                    <field name="section_a_score" class="oe_subtotal_footer_separator"/>
+                  </group>
+
+                </page>
+
+                <page string="SECTION B:(Behavioral Assesments)">
+                  <field name="appraisalbh_line_id" widget="one2many">
+                    <tree editable="button">
+                      <field name="perspective_bh_id" options="{'no_create':True}"/>
+                      <field name="name" invisible="1"/>
+                      <field name="targets_bh"/>
+                      <field name="actual_level_bh"/>
+                      <field name="evidence_bh" invisible="1"/>
+                      <field name="total_score_bh" />
+                      <field name="section_rating" />
+                      <field name="net_weight_bh" invisible="0"/>
+                      <field name="weighted_score_bh" invisible="1"/>
+                      <field name="comments"/>
+                    </tree>
+                  </field>
+                  <group class="oe_subtotal oe_right">
+                    <field name="section_b_net_weight" class="oe_subtotal_footer_separator"/>
+                    <field name="section_b_average_score" class="oe_subtotal_footer_separator"/>
+                  </group>
+                </page>
+
+                <page string="SECTION C:(Comments &amp; Remarks)">
+                  <field name="appraisal_survey_line_id" widget="one2many">
+                      <tree editable="button">
+                        <field name="category_id" options="{'no_create':True}"/>
+                        <field name="name" invisible="1"/>
+                        <field name="descriptions" invisible="1"/>
+                        <field name="comments"/>
+                      </tree>
+                  </field>
+                </page>
+              </notebook>
+            </sheet>
+
+            <div class="oe_chatter">
+              <field name="message_follower_ids" help="Follow"/>
+              <field name="message_ids" widget="mail_thread" options="{'post_refresh':'reciepients'}"/>
+            </div>
+        </form>
+
+      </field>
+    </record>
+
+    <!-- Coo Function -->
+    <record model="ir.ui.view" id="pmt_coo_form">
+      <field name="name">Appraisals</field>
+      <field name="model">pmt.main</field>
+      <field name="arch" type="xml">
+        <form string="Appraisals">
+          <header>
+            <field name="user_id" invisible="1"/>
+            <field name="branch_value_holder" invisible="1"/>
+
+            <button string="Send to MD/CEO" name="submit_md" class="oe_highlight" type="object"/>
+
+            <field name="state" widget="statusbar" statusbar_visible="self,md"/>
+
+          </header>
+            <sheet>
+              <group>
+              <group>
+                <field name="user_id" invisible="1"/>
+                <field name="name"/>
+                <field name="position" placeholder="e.g Applications Developer"/>
+                <field name="staff_no" placeholder="STF01254" required="1"/>
+                <field name="number_of_years_in_role"/>
+                <field name="job_level" placeholder="Select the Job Level" default="officer"/>
+                <field name="branch" options="{'no_create': True}" required="1"/>
+              </group>
+              <group>
+                <field name="overall_score" readonly="1"/>
+                <field name="quarter"/>
+                <field name="last_date_review"/>
+                <field name="branch_value_holder" invisible="1"/>
+              </group>
+            </group>
+            <notebook>
+                <page string="SECTION A:(Core Deliverables)">
+                  <field name="appraisal_line_id" widget="one2many">
+                    <tree editable="button">
+                      <field name="perspective_id" options="{'no_create': True}"/>
+                      <field name="name"/>
+                      <field name="targets"/>
+                      <field name="net_weight" sum="Total Net Weight"/>
+                      <field name="performance_level" invisible="1"/>
+                      <field name="evidence"/>
+                      <field name="actual_level"/>           
+                      <field name="total_score"/>
+                      <field name="weighted_score" sum="weighted_score"/>
+                      <field name="comments"/>
+                    </tree>
+                  </field>
+
+                  <group class="oe_subtotal oe_right">
+                    <field name="section_a_net_weight" class="oe_subtotal_footer_separator"/>
+                    <field name="section_a_score" class="oe_subtotal_footer_separator"/>
+                  </group>
+
+                </page>
+
+                <page string="SECTION B:(Behavioral Assesments)">
+                  <field name="appraisalbh_line_id" widget="one2many">
+                    <tree editable="button">
+                      <field name="perspective_bh_id" options="{'no_create':True}"/>
+                      <field name="name" invisible="1"/>
+                      <field name="targets_bh"/>
+                      <field name="actual_level_bh"/>
+                      <field name="evidence_bh" invisible="1"/>
+                      <field name="total_score_bh" />
+                      <field name="section_rating" />
+                      <field name="net_weight_bh" invisible="0"/>
+                      <field name="weighted_score_bh" invisible="1"/>
+                      <field name="comments"/>
+                    </tree>
+                  </field>
+                  <group class="oe_subtotal oe_right">
+                    <field name="section_b_net_weight" class="oe_subtotal_footer_separator"/>
+                    <field name="section_b_average_score" class="oe_subtotal_footer_separator"/>
+                  </group>
+                </page>
+
+                <page string="SECTION C:(Comments &amp; Remarks)">
+                  <field name="appraisal_survey_line_id" widget="one2many">
+                      <tree editable="button">
+                        <field name="category_id" options="{'no_create':True}"/>
+                        <field name="name" invisible="1"/>
+                        <field name="descriptions" invisible="1"/>
+                        <field name="comments"/>
+                      </tree>
+                  </field>
+                </page>
+              </notebook>
+            </sheet>
+
+            <div class="oe_chatter">
+              <field name="message_follower_ids" help="Follow"/>
+              <field name="message_ids" widget="mail_thread" options="{'post_refresh':'reciepients'}"/>
+            </div>
+        </form>
+
+      </field>
+    </record>
+
+
+    <!-- ED Function -->
+
+    <record model="ir.ui.view" id="pmt_ed_form">
+      <field name="name">Appraisals</field>
+      <field name="model">pmt.main</field>
+      <field name="arch" type="xml">
+        <form string="Appraisals">
+          <header>
+            <field name="user_id" invisible="1"/>
+            <field name="branch_value_holder" invisible="1"/>
+
+            <button string="Send to MD/CEO" name="submit_md" class="oe_highlight" type="object"/>
+            <field name="state" widget="statusbar" statusbar_visible="self,md"/>
+
+          </header>
+            <sheet>
+              <group>
+              <group>
+                <field name="user_id" invisible="1"/>
+                <field name="name"/>
+                <field name="position" placeholder="e.g Applications Developer"/>
+                <field name="staff_no" placeholder="STF01254" required="1"/>
+                <field name="number_of_years_in_role"/>
+                <field name="job_level" placeholder="Select the Job Level" default="officer"/>
+                <field name="branch" options="{'no_create': True}" required="1"/>
+              </group>
+              <group>
+                <field name="overall_score" readonly="1"/>
+                <field name="quarter"/>
+                <field name="last_date_review"/>
+                <field name="branch_value_holder" invisible="1"/>
+              </group>
+            </group>
+            <notebook>
+                <page string="SECTION A:(Core Deliverables)">
+                  <field name="appraisal_line_id" widget="one2many">
+                    <tree editable="button">
+                      <field name="perspective_id" options="{'no_create': True}"/>
+                      <field name="name"/>
+                      <field name="targets"/>
+                      <field name="net_weight" sum="Total Net Weight"/>
+                      <field name="performance_level" invisible="1"/>
+                      <field name="evidence"/>
+                      <field name="actual_level"/>           
+                      <field name="total_score"/>
+                      <field name="weighted_score" sum="weighted_score"/>
+                      <field name="comments"/>
+                    </tree>
+                  </field>
+
+                  <group class="oe_subtotal oe_right">
+                    <field name="section_a_net_weight" class="oe_subtotal_footer_separator"/>
+                    <field name="section_a_score" class="oe_subtotal_footer_separator"/>
+                  </group>
+
+                </page>
+
+                <page string="SECTION B:(Behavioral Assesments)">
+                  <field name="appraisalbh_line_id" widget="one2many">
+                    <tree editable="button">
+                      <field name="perspective_bh_id" options="{'no_create':True}"/>
+                      <field name="name" invisible="1"/>
+                      <field name="targets_bh"/>
+                      <field name="actual_level_bh"/>
+                      <field name="evidence_bh" invisible="1"/>
+                      <field name="total_score_bh" />
+                      <field name="section_rating" />
+                      <field name="net_weight_bh" invisible="0"/>
+                      <field name="weighted_score_bh" invisible="1"/>
+                      <field name="comments"/>
+                    </tree>
+                  </field>
+                  <group class="oe_subtotal oe_right">
+                    <field name="section_b_net_weight" class="oe_subtotal_footer_separator"/>
+                    <field name="section_b_average_score" class="oe_subtotal_footer_separator"/>
+                  </group>
+                </page>
+
+                <page string="SECTION C:(Comments &amp; Remarks)">
+                  <field name="appraisal_survey_line_id" widget="one2many">
+                      <tree editable="button">
+                        <field name="category_id" options="{'no_create':True}"/>
+                        <field name="name" invisible="1"/>
+                        <field name="descriptions" invisible="1"/>
+                        <field name="comments"/>
+                      </tree>
+                  </field>
+                </page>
+              </notebook>
+            </sheet>
+
+            <div class="oe_chatter">
+              <field name="message_follower_ids" help="Follow"/>
+              <field name="message_ids" widget="mail_thread" options="{'post_refresh':'reciepients'}"/>
+            </div>
+        </form>
+
+      </field>
+    </record>
+
+    <!-- Others -->
+    <record model="ir.ui.view" id="pmt_others_form">
+      <field name="name">Appraisals</field>
+      <field name="model">pmt.main</field>
+      <field name="arch" type="xml">
+        <form string="Appraisals">
+          <header>
+            <field name="user_id" invisible="1"/>
+            <field name="branch_value_holder" invisible="1"/>
+
+            <button string="Send to MD/CEO" name="submit_md" class="oe_highlight" type="object"/>
+
+            <field name="state" widget="statusbar" statusbar_visible="self,md"/>
+
+          </header>
+            <sheet>
+              <group>
+              <group>
+                <field name="user_id" invisible="1"/>
+                <field name="name"/>
+                <field name="position" placeholder="e.g Applications Developer"/>
+                <field name="staff_no" placeholder="STF01254" required="1"/>
+                <field name="number_of_years_in_role"/>
+                <field name="job_level" placeholder="Select the Job Level" default="officer"/>
+                <field name="branch" options="{'no_create': True}" required="1"/>
+              </group>
+              <group>
+                <field name="overall_score" readonly="1"/>
+                <field name="quarter"/>
+                <field name="last_date_review"/>
+                <field name="branch_value_holder" invisible="1"/>
+              </group>
+            </group>
+            <notebook>
+                <page string="SECTION A:(Core Deliverables)">
+                  <field name="appraisal_line_id" widget="one2many">
+                    <tree editable="button">
+                      <field name="perspective_id" options="{'no_create': True}"/>
+                      <field name="name"/>
+                      <field name="targets"/>
+                      <field name="net_weight" sum="Total Net Weight"/>
+                      <field name="performance_level" invisible="1"/>
+                      <field name="evidence"/>
+                      <field name="actual_level"/>           
+                      <field name="total_score"/>
+                      <field name="weighted_score" sum="weighted_score"/>
+                      <field name="comments"/>
+                    </tree>
+                  </field>
+
+                  <group class="oe_subtotal oe_right">
+                    <field name="section_a_net_weight" class="oe_subtotal_footer_separator"/>
+                    <field name="section_a_score" class="oe_subtotal_footer_separator"/>
+                  </group>
+
+                </page>
+
+                <page string="SECTION B:(Behavioral Assesments)">
+                  <field name="appraisalbh_line_id" widget="one2many">
+                    <tree editable="button">
+                      <field name="perspective_bh_id" options="{'no_create':True}"/>
+                      <field name="name" invisible="1"/>
+                      <field name="targets_bh"/>
+                      <field name="actual_level_bh"/>
+                      <field name="evidence_bh" invisible="1"/>
+                      <field name="total_score_bh" />
+                      <field name="section_rating" />
+                      <field name="net_weight_bh" invisible="0"/>
+                      <field name="weighted_score_bh" invisible="1"/>
+                      <field name="comments"/>
+                    </tree>
+                  </field>
+                  <group class="oe_subtotal oe_right">
+                    <field name="section_b_net_weight" class="oe_subtotal_footer_separator"/>
+                    <field name="section_b_average_score" class="oe_subtotal_footer_separator"/>
+                  </group>
+                </page>
+
+                <page string="SECTION C:(Comments &amp; Remarks)">
+                  <field name="appraisal_survey_line_id" widget="one2many">
+                      <tree editable="button">
+                        <field name="category_id" options="{'no_create':True}"/>
+                        <field name="name" invisible="1"/>
+                        <field name="descriptions" invisible="1"/>
+                        <field name="comments"/>
+                      </tree>
+                  </field>
+                </page>
+              </notebook>
+            </sheet>
+
+            <div class="oe_chatter">
+              <field name="message_follower_ids" help="Follow"/>
+              <field name="message_ids" widget="mail_thread" options="{'post_refresh':'reciepients'}"/>
+            </div>
+        </form>
+
+      </field>
+    </record>
+
+
+    <!-- Self Appraisal Users -->
+    <record model="ir.actions.act_window" id="pmt.action_users_window">
       <field name="name">Create Self Appraisal</field>
       <field name="res_model">pmt.main</field>
       <field name="domain">[('name', '=',uid)]</field>
       <field name="view_mode">tree,form</field>
+      <field name="view_ids" eval="[(5,0,0),
+        (0,0,{'view_mode': 'tree', 'view_id': ref('pmt.pmt_tree')}),
+        (0,0,{'view_mode': 'form', 'view_id': ref('pmt.pmt_users_form')})
+        ]"/>
       <field name="help" type="html">
         <p class="o_view_nocontent_smiling_face">
           Appraisals at self assesment stage
@@ -181,11 +1129,298 @@
       </field>
     </record>
 
+
+    <!-- Self Appraisal BOM -->
+    <record model="ir.actions.act_window" id="pmt.action_bom_window">
+      <field name="name">Create Self Appraisal</field>
+      <field name="res_model">pmt.main</field>
+      <field name="domain">[('name', '=',uid)]</field>
+      <field name="view_mode">tree,form</field>
+      <field name="view_ids" eval="[(5,0,0),
+        (0,0,{'view_mode': 'tree', 'view_id': ref('pmt.pmt_tree')}),
+        (0,0,{'view_mode': 'form', 'view_id': ref('pmt.pmt_bom_form')})
+        ]"/>
+      <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">
+          Appraisals at self assesment stage
+        </p>
+        <p>
+          Individual users are meant to fill and submit to their line managers/supervisors
+        </p>
+      </field>
+    </record>
+
+    <!-- Self Appraisal Managers -->
+    
+    <record model="ir.actions.act_window" id="pmt.action_manager_window">
+      <field name="name">Create Self Appraisal</field>
+      <field name="res_model">pmt.main</field>
+      <field name="domain">[('name', '=',uid)]</field>
+      <field name="view_mode">tree,form</field>
+      <field name="view_ids" eval="[(5,0,0),
+        (0,0,{'view_mode': 'tree', 'view_id': ref('pmt.pmt_tree')}),
+        (0,0,{'view_mode': 'form', 'view_id': ref('pmt.pmt_managers_form')})
+        ]"/>
+      <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">
+          Appraisals at self assesment stage
+        </p>
+        <p>
+          Individual users are meant to fill and submit to their line managers/supervisors
+        </p>
+      </field>
+    </record>    
+
+
+    <!-- Self Appraisal BMP -->
+    <record model="ir.actions.act_window" id="pmt.action_mbp_window">
+      <field name="name">Create Self Appraisal</field>
+      <field name="res_model">pmt.main</field>
+      <field name="domain">[('name', '=',uid)]</field>
+      <field name="view_mode">tree,form</field>
+      <field name="view_ids" eval="[(5,0,0),
+        (0,0,{'view_mode': 'tree', 'view_id': ref('pmt.pmt_tree')}),
+        (0,0,{'view_mode': 'form', 'view_id': ref('pmt.pmt_manager_branch_perform_form')})
+        ]"/>
+      <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">
+          Appraisals at self assesment stage
+        </p>
+        <p>
+          Individual users are meant to fill and submit to their line managers/supervisors
+        </p>
+      </field>
+    </record>
+
+
+    <!-- Self Appraisal HOD Support -->
+    <record model="ir.actions.act_window" id="pmt.action_hodsupport_window">
+      <field name="name">Create Self Appraisal</field>
+      <field name="res_model">pmt.main</field>
+      <field name="domain">[('name', '=',uid)]</field>
+      <field name="view_mode">tree,form</field>
+      <field name="view_ids" eval="[(5,0,0),
+        (0,0,{'view_mode': 'tree', 'view_id': ref('pmt.pmt_tree')}),
+        (0,0,{'view_mode': 'form', 'view_id': ref('pmt.pmt_manager_hod_support_form')})
+        ]"/>
+      <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">
+          Appraisals at self assesment stage
+        </p>
+        <p>
+          Individual users are meant to fill and submit to their line managers/supervisors
+        </p>
+      </field>
+    </record>
+
+    <!-- Self Appraisal HOD Business -->
+    <record model="ir.actions.act_window" id="pmt.action_hodbusiness_window">
+      <field name="name">Create Self Appraisal</field>
+      <field name="res_model">pmt.main</field>
+      <field name="domain">[('name', '=',uid)]</field>
+      <field name="view_mode">tree,form</field>
+      <field name="view_ids" eval="[(5,0,0),
+        (0,0,{'view_mode': 'tree', 'view_id': ref('pmt.pmt_tree')}),
+        (0,0,{'view_mode': 'form', 'view_id': ref('pmt.pmt_hod_business_form')})
+        ]"/>
+      <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">
+          Appraisals at self assesment stage
+        </p>
+        <p>
+          Individual users are meant to fill and submit to their line managers/supervisors
+        </p>
+      </field>
+    </record>
+
+
+    <!--Self Appraisal Coo -->
+    <record model="ir.actions.act_window" id="pmt.action_coo_win_window">
+      <field name="name">Create Self Appraisal</field>
+      <field name="res_model">pmt.main</field>
+      <field name="domain">[('name', '=',uid)]</field>
+      <field name="view_mode">tree,form</field>
+      <field name="view_ids" eval="[(5,0,0),
+        (0,0,{'view_mode': 'tree', 'view_id': ref('pmt.pmt_tree')}),
+        (0,0,{'view_mode': 'form', 'view_id': ref('pmt.pmt_coo_form')})
+        ]"/>
+      <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">
+          Appraisals at self assesment stage
+        </p>
+        <p>
+          Individual users are meant to fill and submit to their line managers/supervisors
+        </p>
+      </field>
+    </record>
+
+    <!--Self Appraisal ED -->
+
+    <record model="ir.actions.act_window" id="pmt.action_ed_win_window">
+      <field name="name">Create Self Appraisal</field>
+      <field name="res_model">pmt.main</field>
+      <field name="domain">[('name', '=',uid)]</field>
+      <field name="view_mode">tree,form</field>
+      <field name="view_ids" eval="[(5,0,0),
+        (0,0,{'view_mode': 'tree', 'view_id': ref('pmt.pmt_tree')}),
+        (0,0,{'view_mode': 'form', 'view_id': ref('pmt.pmt_ed_form')})
+        ]"/>
+      <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">
+          Appraisals at self assesment stage
+        </p>
+        <p>
+          Individual users are meant to fill and submit to their line managers/supervisors
+        </p>
+      </field>
+    </record>
+
+
+    <!--Self Appraisal Others -->
+
+    <record model="ir.actions.act_window" id="pmt.action_others_win_window">
+      <field name="name">Create Self Appraisal</field>
+      <field name="res_model">pmt.main</field>
+      <field name="domain">[('name', '=',uid)]</field>
+      <field name="view_mode">tree,form</field>
+      <field name="view_ids" eval="[(5,0,0),
+        (0,0,{'view_mode': 'tree', 'view_id': ref('pmt.pmt_tree')}),
+        (0,0,{'view_mode': 'form', 'view_id': ref('pmt.pmt_others_form')})
+        ]"/>
+      <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">
+          Appraisals at self assesment stage
+        </p>
+        <p>
+          Individual users are meant to fill and submit to their line managers/supervisors
+        </p>
+      </field>
+    </record>
+
+
+    <!-- line manager form -->
+    <record model="ir.ui.view" id="pmt_line_manager_form">
+      <field name="name">Appraisals</field>
+      <field name="model">pmt.main</field>
+      <field name="arch" type="xml">
+        <form string="Appraisals">
+          <header>
+            <field name="user_id" invisible="1"/>
+            <field name="branch_value_holder" invisible="1"/>
+
+            <button string="Submit to Head Of Department" name="submit_hod" type="object"
+              attrs="{'invisible': [('branch_value_holder','!=','Head Office')]}" class="oe_highlight"
+              />
+
+            <button string="Submit to Manager Branch Performance" name="submit_hod" class="oe_highlight"
+              type="object" attrs="{'invisible': [('branch_value_holder', '=', 'Head Office')]}"/>
+
+            <button string="Send Back" name="sendback" class="oe_highlight"
+              type="object"/>
+
+            <field name="state" widget="statusbar" statusbar_visible="mbp,hod,hr"/>
+
+          </header>
+            <sheet>
+              <group>
+              <group>
+                <field name="user_id" invisible="1"/>
+                <field name="name"/>
+                <field name="position" placeholder="e.g Applications Developer"/>
+                <field name="staff_no" placeholder="STF01254" required="1"/>
+                <field name="number_of_years_in_role"/>
+                <field name="job_level" placeholder="Select the Job Level" default="officer"/>
+                <field name="branch" options="{'no_create': True}" required="1"/>
+              </group>
+              <group>
+                <field name="overall_score" readonly="1"/>
+                <field name="quarter"/>
+                <field name="last_date_review"/>
+                <field name="branch_value_holder" invisible="1"/>
+               
+                <field name="line_manager" attrs="{'invisible': [('branch_value_holder', '!=', 'Head Office')],'required': [('branch_value_holder', '=', 'Head Office')]}"/>
+                <field name="department_head" attrs="{'invisible': [('branch_value_holder', '!=', 'Head Office')], 'required': [('branch_value_holder', '=', 'Head Office')]}"/>
+                <field name="mbp" attrs="{'invisible': [('branch_value_holder', '=', 'Head Office')], 'required': [('branch_value_holder', '!=', 'Head Office')]}"/>
+              </group>
+            </group>
+            <notebook>
+                <page string="SECTION A:(Core Deliverables)">
+                  <field name="appraisal_line_id" widget="one2many">
+                    <tree editable="button">
+                      <field name="perspective_id" options="{'no_create': True}"/>
+                      <field name="name"/>
+                      <field name="targets"/>
+                      <field name="net_weight" sum="Total Net Weight"/>
+                      <field name="performance_level" invisible="1"/>
+                      <field name="evidence"/>
+                      <field name="actual_level"/>           
+                      <field name="total_score"/>
+                      <field name="weighted_score" sum="weighted_score"/>
+                      <field name="comments"/>
+                    </tree>
+                  </field>
+
+                  <group class="oe_subtotal oe_right">
+                    <field name="section_a_net_weight" class="oe_subtotal_footer_separator"/>
+                    <field name="section_a_score" class="oe_subtotal_footer_separator"/>
+                  </group>
+
+                </page>
+
+                <page string="SECTION B:(Behavioral Assesments)">
+                  <field name="appraisalbh_line_id" widget="one2many">
+                    <tree editable="button">
+                      <field name="perspective_bh_id" options="{'no_create':True}"/>
+                      <field name="name" invisible="1"/>
+                      <field name="targets_bh"/>
+                      <field name="actual_level_bh"/>
+                      <field name="evidence_bh" invisible="1"/>
+                      <field name="total_score_bh" />
+                      <field name="section_rating" />
+                      <field name="net_weight_bh" invisible="0"/>
+                      <field name="weighted_score_bh" invisible="1"/>
+                      <field name="comments"/>
+                    </tree>
+                  </field>
+                  <group class="oe_subtotal oe_right">
+                    <field name="section_b_net_weight" class="oe_subtotal_footer_separator"/>
+                    <field name="section_b_average_score" class="oe_subtotal_footer_separator"/>
+                  </group>
+                </page>
+
+                <page string="SECTION C:(Comments &amp; Remarks)">
+                  <field name="appraisal_survey_line_id" widget="one2many">
+                      <tree editable="button">
+                        <field name="category_id" options="{'no_create':True}"/>
+                        <field name="name" invisible="1"/>
+                        <field name="descriptions" invisible="1"/>
+                        <field name="comments"/>
+                      </tree>
+                  </field>
+                </page>
+              </notebook>
+            </sheet>
+
+            <div class="oe_chatter">
+              <field name="message_follower_ids" help="Follow"/>
+              <field name="message_ids" widget="mail_thread" options="{'post_refresh':'reciepients'}"/>
+            </div>
+        </form>
+
+      </field>
+    </record>
+
+
+
     <record model="ir.actions.act_window" id="pmt.line_manager_action">
       <field name="name">Manager Appraisals</field>
       <field name="res_model">pmt.main</field>
       <field name="domain">[('state', '=', 'manager'),('line_manager', '=', uid)]</field>
       <field name="view_mode">tree,form</field>
+      <field name="view_ids" eval="[(5,0,0),
+        (0,0,{'view_mode': 'tree', 'view_id': ref('pmt.pmt_tree')}),
+        (0,0,{'view_mode': 'form', 'view_id': ref('pmt.pmt_line_manager_form')})
+        ]"/>
       <field name="help" type="html">
         <p class="o_view_nocontent_smiling_face">
           Appraisals to be reviewed by the line manager
@@ -196,11 +1431,122 @@
       </field>
     </record>
 
+    <!-- HOD Assesment -->
+
+    <record model="ir.ui.view" id="pmt_hod_assesment2_form">
+      <field name="name">Appraisals</field>
+      <field name="model">pmt.main</field>
+      <field name="arch" type="xml">
+        <form string="Appraisals">
+          <header>
+            <field name="user_id" invisible="1"/>
+            <field name="branch_value_holder" invisible="1"/>
+
+            <button string="Submit to HR" name="submit_hr" class="oe_highlight" type="object"/>
+            <button string="Send Back" name="sendback" class="oe_highlight"
+              type="object"/>
+
+            <field name="state" widget="statusbar" statusbar_visible="mbp,hr"/>
+
+          </header>
+            <sheet>
+              <group>
+              <group>
+                <field name="user_id" invisible="1"/>
+                <field name="name"/>
+                <field name="position" placeholder="e.g Applications Developer"/>
+                <field name="staff_no" placeholder="STF01254" required="1"/>
+                <field name="number_of_years_in_role"/>
+                <field name="job_level" placeholder="Select the Job Level" default="officer"/>
+                <field name="branch" options="{'no_create': True}" required="1"/>
+              </group>
+              <group>
+                <field name="overall_score" readonly="1"/>
+                <field name="quarter"/>
+                <field name="last_date_review"/>
+                <field name="branch_value_holder" invisible="1"/>
+                <field name="department_head"/>
+                <!-- <field name="bom" attrs="{'invisible': [('branch_value_holder', 'in', ['Head Office'])]}"/>
+                <field name="line_manager" attrs="{'invisible':[('branch_value_holder', '!=', 'Head Office')]}"/>
+                <field name="mbp" attrs="{'invisible': [('branch_value_holder', '=', 'Head Office')]}"/> -->
+              </group>
+            </group>
+            <notebook>
+                <page string="SECTION A:(Core Deliverables)">
+                  <field name="appraisal_line_id" widget="one2many">
+                    <tree editable="button">
+                      <field name="perspective_id" options="{'no_create': True}"/>
+                      <field name="name"/>
+                      <field name="targets"/>
+                      <field name="net_weight" sum="Total Net Weight"/>
+                      <field name="performance_level" invisible="1"/>
+                      <field name="evidence"/>
+                      <field name="actual_level"/>           
+                      <field name="total_score"/>
+                      <field name="weighted_score" sum="weighted_score"/>
+                      <field name="comments"/>
+                    </tree>
+                  </field>
+
+                  <group class="oe_subtotal oe_right">
+                    <field name="section_a_net_weight" class="oe_subtotal_footer_separator"/>
+                    <field name="section_a_score" class="oe_subtotal_footer_separator"/>
+                  </group>
+
+                </page>
+
+                <page string="SECTION B:(Behavioral Assesments)">
+                  <field name="appraisalbh_line_id" widget="one2many">
+                    <tree editable="button">
+                      <field name="perspective_bh_id" options="{'no_create':True}"/>
+                      <field name="name" invisible="1"/>
+                      <field name="targets_bh"/>
+                      <field name="actual_level_bh"/>
+                      <field name="evidence_bh" invisible="1"/>
+                      <field name="total_score_bh" />
+                      <field name="section_rating" />
+                      <field name="net_weight_bh" invisible="0"/>
+                      <field name="weighted_score_bh" invisible="1"/>
+                      <field name="comments"/>
+                    </tree>
+                  </field>
+                  <group class="oe_subtotal oe_right">
+                    <field name="section_b_net_weight" class="oe_subtotal_footer_separator"/>
+                    <field name="section_b_average_score" class="oe_subtotal_footer_separator"/>
+                  </group>
+                </page>
+
+                <page string="SECTION C:(Comments &amp; Remarks)">
+                  <field name="appraisal_survey_line_id" widget="one2many">
+                      <tree editable="button">
+                        <field name="category_id" options="{'no_create':True}"/>
+                        <field name="name" invisible="1"/>
+                        <field name="descriptions" invisible="1"/>
+                        <field name="comments"/>
+                      </tree>
+                  </field>
+                </page>
+              </notebook>
+            </sheet>
+
+            <div class="oe_chatter">
+              <field name="message_follower_ids" help="Follow"/>
+              <field name="message_ids" widget="mail_thread" options="{'post_refresh':'reciepients'}"/>
+            </div>
+        </form>
+
+        </field>
+    </record>
+
     <record model="ir.actions.act_window" id="pmt.hod_action">
       <field name="name">Appraisals for HOD Assesment</field>
       <field name="res_model">pmt.main</field>
       <field name="domain">[('state', '=', 'hod'),('department_head', '=', uid)]</field>
       <field name="view_mode">tree,form</field>
+      <field name="view_ids" eval="[(5,0,0),
+        (0,0,{'view_mode': 'tree', 'view_id': ref('pmt.pmt_tree')}),
+        (0,0,{'view_mode': 'form', 'view_id': ref('pmt.pmt_hod_assesment2_form')})
+        ]"/>
       <field name="help" type="html">
         <p class="o_view_nocontent_smiling_face">
           Appraisals at Heads of Department for Review
@@ -285,11 +1631,120 @@
       </field>
     </record>
 
+    <!-- BOM Assessment form -->
+    <record model="ir.ui.view" id="pmt_bom_assesment_form">
+      <field name="name">Appraisals</field>
+      <field name="model">pmt.main</field>
+      <field name="arch" type="xml">
+        <form string="Appraisals">
+          <header>
+            <field name="user_id" invisible="1"/>
+            <field name="branch_value_holder" invisible="1"/>
+
+            <button string="Submit to Manager" name="bom_submit_manager" class="oe_highlight"
+              type="object" attrs="{'invisible': [('state', '!=', 'supervisor')]}"/>
+
+            <button string="Send Back" name="sendback" class="oe_highlight"
+              type="object"/>
+
+            <field name="state" widget="statusbar" statusbar_visible="self,supervisor,manager,mbp,hod,hr"
+              />
+          </header>
+            <sheet>
+              <group>
+              <group>
+                <field name="user_id" invisible="1"/>
+                <field name="name"/>
+                <field name="position" placeholder="e.g Applications Developer"/>
+                <field name="staff_no" placeholder="STF01254" required="1"/>
+                <field name="number_of_years_in_role"/>
+                <field name="job_level" placeholder="Select the Job Level" default="officer"/>
+                <field name="branch" options="{'no_create': True}" required="1"/>
+              </group>
+              <group>
+                <field name="overall_score" readonly="1"/>
+                <field name="quarter"/>
+                <field name="last_date_review"/>
+                <field name="branch_value_holder" invisible="1"/>
+                <field name="bom" attrs="{'invisible': [('branch_value_holder', 'in', ['Head Office'])],'required': [('branch_value_holder', 'not in', ['Head Office'])]}"/>
+                <field name="line_manager" attrs="{'invisible': [('branch_value_holder', 'not in', ['Head Office']),('state', 'not in',['supervisor'])], 'required': ['|',('branch_value_holder', 'in', ['Head Office']),('state', 'in', ['supervisor'])]}"/>
+              </group>
+            </group>
+            <notebook>
+                <page string="SECTION A:(Core Deliverables)">
+                  <field name="appraisal_line_id" widget="one2many">
+                    <tree editable="button">
+                      <field name="perspective_id" options="{'no_create': True}"/>
+                      <field name="name"/>
+                      <field name="targets"/>
+                      <field name="net_weight" sum="Total Net Weight"/>
+                      <field name="performance_level" invisible="1"/>
+                      <field name="evidence"/>
+                      <field name="actual_level"/>           
+                      <field name="total_score"/>
+                      <field name="weighted_score" sum="weighted_score"/>
+                      <field name="comments"/>
+                    </tree>
+                  </field>
+
+                  <group class="oe_subtotal oe_right">
+                    <field name="section_a_net_weight" class="oe_subtotal_footer_separator"/>
+                    <field name="section_a_score" class="oe_subtotal_footer_separator"/>
+                  </group>
+
+                </page>
+
+                <page string="SECTION B:(Behavioral Assesments)">
+                  <field name="appraisalbh_line_id" widget="one2many">
+                    <tree editable="button">
+                      <field name="perspective_bh_id" options="{'no_create':True}"/>
+                      <field name="name" invisible="1"/>
+                      <field name="targets_bh"/>
+                      <field name="actual_level_bh"/>
+                      <field name="evidence_bh" invisible="1"/>
+                      <field name="total_score_bh" />
+                      <field name="section_rating" />
+                      <field name="net_weight_bh" invisible="0"/>
+                      <field name="weighted_score_bh" invisible="1"/>
+                      <field name="comments"/>
+                    </tree>
+                  </field>
+                  <group class="oe_subtotal oe_right">
+                    <field name="section_b_net_weight" class="oe_subtotal_footer_separator"/>
+                    <field name="section_b_average_score" class="oe_subtotal_footer_separator"/>
+                  </group>
+                </page>
+
+                <page string="SECTION C:(Comments &amp; Remarks)">
+                  <field name="appraisal_survey_line_id" widget="one2many">
+                      <tree editable="button">
+                        <field name="category_id" options="{'no_create':True}"/>
+                        <field name="name" invisible="1"/>
+                        <field name="descriptions" invisible="1"/>
+                        <field name="comments"/>
+                      </tree>
+                  </field>
+                </page>
+              </notebook>
+            </sheet>
+
+            <div class="oe_chatter">
+              <field name="message_follower_ids" help="Follow"/>
+              <field name="message_ids" widget="mail_thread" options="{'post_refresh':'reciepients'}"/>
+            </div>
+        </form>
+
+      </field>
+    </record>
 
     <record model="ir.actions.act_window" id="pmt.bom_action">
       <field name="name">Appraisals for BOM Assesment</field>
       <field name="res_model">pmt.main</field>
       <field name="domain">[('state', '=', 'supervisor'),('bom', '=', uid)]</field>
+      <field name="view_ids" eval="[(5,0,0),
+        (0,0,{'view_mode': 'tree', 'view_id': ref('pmt.pmt_tree')}),
+        (0,0,{'view_mode': 'form', 'view_id': ref('pmt.pmt_bom_assesment_form')})
+        ]"/>
       <field name="help" type="html">
           <p class="o_view_nocontent_smiling_face">
             Appraisals for Supervisor's Assesments
@@ -301,11 +1756,124 @@
       </field>
     </record>
 
+    <!--MBP -->
+
+    <record model="ir.ui.view" id="pmt_mbp_assesment_form">
+      <field name="name">Appraisals</field>
+      <field name="model">pmt.main</field>
+      <field name="arch" type="xml">
+        <form string="Appraisals">
+          <header>
+            <field name="user_id" invisible="1"/>
+            <field name="branch_value_holder" invisible="1"/>
+
+            <button string="Submit to HR" name="submit_hr" class="oe_highlight" type="object"/>
+            <button string="Send Back" name="sendback" class="oe_highlight"
+              type="object"/>
+
+            <field name="state" widget="statusbar" statusbar_visible="mbp,hr"/>
+
+          </header>
+            <sheet>
+              <group>
+              <group>
+                <field name="user_id" invisible="1"/>
+                <field name="name"/>
+                <field name="position" placeholder="e.g Applications Developer"/>
+                <field name="staff_no" placeholder="STF01254" required="1"/>
+                <field name="number_of_years_in_role"/>
+                <field name="job_level" placeholder="Select the Job Level" default="officer"/>
+                <field name="branch" options="{'no_create': True}" required="1"/>
+              </group>
+              <group>
+                <field name="overall_score" readonly="1"/>
+                <field name="quarter"/>
+                <field name="last_date_review"/>
+                <field name="branch_value_holder" invisible="1"/>
+                <!-- <field name="bom" attrs="{'invisible': [('branch_value_holder', 'in', ['Head Office'])],'required': [('branch_value_holder', 'not in', ['Head Office'])]}"/>
+ -->
+                <field name="line_manager" attrs="{'invisible': [('branch_value_holder', '!=', 'Head Office')], 'required': [('branch_value_holder', '=', 'Head Office')]}"/>
+                <field name="mbp" attrs="{'invisible': [('branch_value_holder', '=', 'Head Office')], 'required': [('branch_value_holder', '!=', 'Head Office')]}"/>
+              </group>
+            </group>
+            <notebook>
+                <page string="SECTION A:(Core Deliverables)">
+                  <field name="appraisal_line_id" widget="one2many">
+                    <tree editable="button">
+                      <field name="perspective_id" options="{'no_create': True}"/>
+                      <field name="name"/>
+                      <field name="targets"/>
+                      <field name="net_weight" sum="Total Net Weight"/>
+                      <field name="performance_level" invisible="1"/>
+                      <field name="evidence"/>
+                      <field name="actual_level"/>           
+                      <field name="total_score"/>
+                      <field name="weighted_score" sum="weighted_score"/>
+                      <field name="comments"/>
+                    </tree>
+                  </field>
+
+                  <group class="oe_subtotal oe_right">
+                    <field name="section_a_net_weight" class="oe_subtotal_footer_separator"/>
+                    <field name="section_a_score" class="oe_subtotal_footer_separator"/>
+                  </group>
+
+                </page>
+
+                <page string="SECTION B:(Behavioral Assesments)">
+                  <field name="appraisalbh_line_id" widget="one2many">
+                    <tree editable="button">
+                      <field name="perspective_bh_id" options="{'no_create':True}"/>
+                      <field name="name" invisible="1"/>
+                      <field name="targets_bh"/>
+                      <field name="actual_level_bh"/>
+                      <field name="evidence_bh" invisible="1"/>
+                      <field name="total_score_bh" />
+                      <field name="section_rating" />
+                      <field name="net_weight_bh" invisible="0"/>
+                      <field name="weighted_score_bh" invisible="1"/>
+                      <field name="comments"/>
+                    </tree>
+                  </field>
+                  <group class="oe_subtotal oe_right">
+                    <field name="section_b_net_weight" class="oe_subtotal_footer_separator"/>
+                    <field name="section_b_average_score" class="oe_subtotal_footer_separator"/>
+                  </group>
+                </page>
+
+                <page string="SECTION C:(Comments &amp; Remarks)">
+                  <field name="appraisal_survey_line_id" widget="one2many">
+                      <tree editable="button">
+                        <field name="category_id" options="{'no_create':True}"/>
+                        <field name="name" invisible="1"/>
+                        <field name="descriptions" invisible="1"/>
+                        <field name="comments"/>
+                      </tree>
+                  </field>
+                </page>
+              </notebook>
+            </sheet>
+
+            <div class="oe_chatter">
+              <field name="message_follower_ids" help="Follow"/>
+              <field name="message_ids" widget="mail_thread" options="{'post_refresh':'reciepients'}"/>
+            </div>
+        </form>
+
+      </field>
+    </record>
+
+
+    <!-- MBP -->
 
     <record model="ir.actions.act_window" id="pmt.mbp_action">
       <field name="name">Appraisals for Manager Branch Performance Assesment</field>
       <field name="res_model">pmt.main</field>
       <field name="domain">['|',('state', '=', 'mbp'),('mbp', '=', uid)]</field>
+      <field name="view_ids" eval="[(5,0,0),
+        (0,0,{'view_mode': 'tree', 'view_id': ref('pmt.pmt_tree')}),
+        (0,0,{'view_mode': 'form', 'view_id': ref('pmt.pmt_mbp_assesment_form')})
+        ]"/>
       <field name="help" type="html">
           <p class="o_view_nocontent_smiling_face">
             Appraisals for Supervisor's Assesments
@@ -348,23 +1916,6 @@
       </field>
     </record>
 
-
-    <!-- server action to the one above -->
-    <!--
-    <record model="ir.actions.server" id="pmt.action_server">
-      <field name="name">pmt server</field>
-      <field name="model_id" ref="model_pmt_pmt"/>
-      <field name="state">code</field>
-      <field name="code">
-        action = {
-          "type": "ir.actions.act_window",
-          "view_mode": "tree,form",
-          "res_model": self._name,
-        }
-      </field>
-    </record>
-    -->
-
     <!-- Top menu item -->
     
     <menuitem name="Online Appraisals" id="pmt.menu_root"
@@ -372,16 +1923,61 @@
     
     <!-- menu categories -->
     
-
     <menuitem name="Self Appraisal" id="pmt.appraisal" parent="pmt.menu_root" sequence="2"
-              groups="pmt.pmt_user,pmt.pmt_hr,pmt.pmt_super_admin,pmt.pmt_manager_others,pmt.pmt_coo,pmt.pmt_ed,pmt.pmt_officer,pmt.pmt_manager,pmt.pmt_other_direct_md_functions,pmt.pmt_bom,pmt.pmt_mbp"/>
-    
+      />
+
+    <!--self appraisal users -->
+    <menuitem name="Create Appraisal(Officer)" id="pmt_officers_appraisal" parent="pmt.appraisal"
+          action="pmt.action_users_window"
+          groups="pmt.pmt_user"/>
+
+    <!--self appraisal managers -->
+    <menuitem name="Create Appraisal(Manager)" id="pmt_managers_appraisal" parent="pmt.appraisal"
+          action="pmt.action_manager_window"
+          groups="pmt.pmt_officer"/>
+
+
+
+    <!--self appraisal supervisors -->
+    <menuitem name="Create Appraisal(BOM)" id="pmt_create_boms" parent="pmt.appraisal"
+          action="pmt.action_bom_window"
+          groups="pmt.pmt_bom"/>
+
+    <!--self appraisal BPM-->
+    <menuitem name="Create Appraisal(MBP)" id="pmt_create_mbp_appraisal" parent="pmt.appraisal"
+          action="pmt.action_mbp_window"
+          groups="pmt.pmt_mbp"/>
+
+
+    <!--self appraisal HOD -->
+    <menuitem name="Create Appraisal(HOD-Support)" id="pmt_create_hod_support_appraisal" parent="pmt.appraisal"
+          action="pmt.action_hodsupport_window"
+          groups="pmt.pmt_manager"/>
+
+    <!--self appraisal Others-->
+    <menuitem name="Create Appraisal" id="pmt_create_hod_business_appraisal" parent="pmt.appraisal"
+          action="pmt.action_hodbusiness_window"
+          groups="pmt.pmt_manager_others"/>
+
+    <!--self appraisal ED -->
+    <menuitem name="Create Appraisal(ED)" id="pmt_create_ed_appraisal" parent="pmt.appraisal"
+          action="pmt.action_ed_win_window"
+          groups="pmt.pmt_ed"/>
+
+
+    <!--self appraisal COO -->
+    <menuitem name="Create Appraisal(COO)" id="pmt_create_coo_appraisal" parent="pmt.appraisal"
+          action="pmt.action_coo_win_window"
+          groups="pmt.pmt_coo"/>
+
+    <!-- self Appraisal Others -->
+    <menuitem name="Create Appraisal" id="pmt_create_others_appraisal" parent="pmt.appraisal"
+          action="pmt.action_others_win_window"
+          groups="pmt.pmt_other_direct_md_functions"/>
+
     <!-- actions -->
 
-    <menuitem name="Create Appraisal" id="pmt.create" parent="pmt.appraisal"
-              action="pmt.action_window" sequence="2"
-              groups="pmt.pmt_bom,pmt.pmt_mbp"/>
-
+    
     <menuitem name="Appraisals for Manager/BM Assesment" id="pmt.supervisor_asses" parent="pmt.menu_root"
               action="pmt.line_manager_action" sequence="3"
               groups="pmt.pmt_officer,pmt_super_admin"/>
@@ -445,7 +2041,6 @@
 
 
     <menuitem name="Configurations" id="pmt.config" parent="pmt.menu_root"
-              action="pmt.action_window" sequence="41"
               groups="pmt.pmt_super_admin"/>
 
     <menuitem name="Perspective" id="pmt.perspectives" parent="pmt.menu_root"

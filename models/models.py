@@ -53,7 +53,7 @@ class pmt(models.Model):
 	number_of_years_in_role = fields.Char(string='Number Of Years In Current Role')
 	last_date_review = fields.Date(string='Date Of Last Review')
 	line_manager = fields.Many2one('res.users',string='Manager/Branch Manager')
-	branch = fields.Many2one('org.branch',string='Deployment Branch')
+	branch = fields.Many2one('org.branch',string='Deployment Branch', default='')
 	staff_no = fields.Char(string="Staff No.", track_visibility="onchange", required=True)
 	department_head = fields.Many2one('res.users',string='Department Head')
 	bom = fields.Many2one('res.users',string='Supervisor(BOM)')
@@ -73,6 +73,7 @@ class pmt(models.Model):
 	job_level = fields.Selection(
 		[
 			('officer', 'Officer'),
+			('bom', 'Branch Operation Manager'),
 			('manager', 'Manager'),
 			('mbp', 'Branch Performance Manager'),
 			('hod', 'Head Of Department'),
@@ -217,13 +218,16 @@ class pmt(models.Model):
 			raise UserError(_('You are no longer Authorized to Modify this File \n'+
 				'Pleas Contact your Systems Administrator'))
 
-		if self.env['res.users'].has_group('pmt.pmt_other_direct_md_functions') and state not in ['self']:
+		if self.env['res.users'].has_group('pmt.pmt_other_direct_md_functions') and self.state not in ['self']:
 			raise UserError(_('You are no longer Authorized to Modify this File \n'+
 				'Please Contact your Systems Administrator'))
 
 		if self.env['res.users'].has_group('pmt.pmt_coo') and self.state not in ['self','coo']:
 			raise UserError(_('You are no longer Authorized to Modify this File \n'+
 				'Please Contact your Systems Administrator'))
+		if self.env['res.users'].has_group('pmt.pmt_mbp') and self.state not in ['self', 'mbp']:
+			raise UserError(_('You are no longer Authorized to Modify this File \n'+
+				'Please Contact Your Systems Administrator'))
 
 		rec = super(pmt, self).write(values)
 		
@@ -323,7 +327,7 @@ class pmt(models.Model):
 			if record.section_a_percentage_score < 100 or record.section_a_percentage_score > 100:
 				raise ValidationError(_('SECTION A OVERRALL PERCENTAGE IS NOT VALID \n'+
 						'REQUIRED VALID PERCENTAGE IS 100%'))
-			elif record.section_b_aspects < 20 or record.section_b_aspects > 20:
+			if record.section_b_aspects < 20 or record.section_b_aspects > 20:
 				raise ValidationError(_('SECTION B OVERRALL WEIGHT IS NOT VALID \n'+
 					'CHOOSE ALL THE BEHAVIORAL ASPECTS,(20) '))
 			record.write({'state':'ed'})
@@ -334,7 +338,7 @@ class pmt(models.Model):
 			if record.section_a_percentage_score < 100 or record.section_a_percentage_score > 100:
 				raise ValidationError(_('SECTION A OVERRALL PERCENTAGE IS NOT VALID \n'+
 						'REQUIRED VALID PERCENTAGE IS 100%'))
-			elif record.section_b_aspects < 20 or record.section_b_aspects > 20:
+			if record.section_b_aspects < 20 or record.section_b_aspects > 20:
 				raise ValidationError(_('SECTION B OVERRALL WEIGHT IS NOT VALID \n'+
 					'CHOOSE ALL THE BEHAVIORAL ASPECTS,(20) '))
 			record.write({'state': 'coo'})
@@ -345,7 +349,7 @@ class pmt(models.Model):
 			if record.section_a_percentage_score < 100 or record.section_a_percentage_score > 100:
 				raise ValidationError(_('SECTION A OVERRALL PERCENTAGE IS NOT VALID \n'+
 					'REQUIRED VALID PERCENTAGE IS 100%'))
-			elif record.section_b_aspects < 20 or record.section_b_aspects > 20:
+			if record.section_b_aspects < 20 or record.section_b_aspects > 20:
 				raise ValidationError(_('SECTION B OVERRALL WEIGHT IS NOT VALID \n'+
 					'CHOOSE ALL THE BEHAVIORAL ASPECTS,(20) '))
 			record.write({'state': 'md'})
@@ -357,7 +361,7 @@ class pmt(models.Model):
 			if record.section_a_percentage_score < 100 or record.section_a_percentage_score > 100:
 				raise ValidationError(_('SECTION A OVERRALL PERCENTAGE IS NOT VALID \n'+
 						'REQUIRED VALID PERCENTAGE IS 100%'))
-			elif record.section_b_aspects < 20 or record.section_b_aspects > 20:
+			if record.section_b_aspects < 20 or record.section_b_aspects > 20:
 				raise ValidationError(_('SECTION B OVERRALL WEIGHT IS NOT VALID \n'+
 					'CHOOSE ALL THE BEHAVIORAL ASPECTS,(20) '))
 			record.write({'state':'hr'})
@@ -367,9 +371,26 @@ class pmt(models.Model):
 		for record in self:
 			record_user = self.env['res.users'].browse(record.name.id)
 			print('Record Owner Is '+str(record_user.id))
+
 			if record.state == 'supervisor' and record.job_level == 'officer':
 				record.write({'state': 'self'})
-			if record.state == 'manager' and record.branch.name == 'Head Office':
+
+			if record.state == 'manager' and record.job_level == 'officer':
+				record.write({'state': 'supervisor'})
+
+			if record.state == 'manager' and record.job_level == 'bom':
+				record.write({'state': 'self'})
+
+			if record.state == 'mbp' and record.job_level in  ['officer', 'bom']:
+				record.write({'state':'manager'})
+
+			if record.state == 'mbp' and record.job_level == 'manager':
+				record.write({'state': 'self'})
+
+			if record.state == 'hr' and record.job_level in ['officer', 'bom']:
+				record.write({'state': 'mbp'})
+
+			if record.state == 'manager' and record.branch.name == 'Head Office' and record.job_level == 'manager':
 				record.write({'state':'self'})
 			if record.state == 'hod' and record.job_level == 'manager':
 				record.write({'state':'self'})
@@ -380,8 +401,10 @@ class pmt(models.Model):
 			if record.state in ['coo', 'ed', 'md']:
 				record.write({'state': 'self'})
 			if record.state in ['hr']:
-				if record_user.has_group('pmt.pmt_user') or record_user.has_group('pmt.pmt_officer'):
+				if record_user.has_group('pmt.pmt_user') and record_user.branch.name == 'Head Office':
 					record.write({'state': 'hod'})
+				if record_user.has_group('pmt.pmt_user') and record_user.branch.name != 'Head Office': 
+					record.write({'state':'mbp'})
 				if record_user.has_group('pmt.pmt_manager'):
 					record.write({'state': 'coo'})
 				if record_user.has_group('pmt.pmt_manager_others'):
@@ -393,11 +416,6 @@ class pmt(models.Model):
 
 			if record.state in ['hod'] and record.job_level == 'mbp':
 				record.write({'state':'mbp'})
-
-			if record.state in ['supervisor'] and record.job_level == 'officer':
-				record.write({'state':'self'})
-			if record.state in ['manager'] and not record.branch.name == 'Head Office':
-				record.write({'state':'supervisor'})
 
 	@api.multi
 	def print_appraisal(self):

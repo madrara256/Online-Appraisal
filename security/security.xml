@@ -69,7 +69,7 @@
 		</record>
 
 		<record id="pmt_bom" model="res.groups">
-			<field name="name">Supervisor(BOM)</field>
+			<field name="name">Supervisor(BOM)&amp; Others</field>
 			<field name="category_id" ref="pmt_category"/>
 			<field name="comment">Supervisors(BOM) Intermediate at Branches</field>
 		</record>
