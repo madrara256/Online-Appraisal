@@ -1927,7 +1927,7 @@
       />
 
     <!--self appraisal users -->
-    <menuitem name="Create Appraisal(Officer)" id="pmt_officers_appraisal" parent="pmt.appraisal"
+    <menuitem name="Create Appraisal(Officer)" id="pmt_create_users" parent="pmt.appraisal"
           action="pmt.action_users_window"
           groups="pmt.pmt_user"/>
 
@@ -1964,7 +1964,6 @@
           action="pmt.action_ed_win_window"
           groups="pmt.pmt_ed"/>
 
-
     <!--self appraisal COO -->
     <menuitem name="Create Appraisal(COO)" id="pmt_create_coo_appraisal" parent="pmt.appraisal"
           action="pmt.action_coo_win_window"
@@ -1984,7 +1983,7 @@
 
     <menuitem name="Appraisals for HOD Assesment" id="pmt.hod_asses" parent="pmt.menu_root"
               action="pmt.hod_action" sequence="4"
-              groups="pmt.pmt_manager,pmt_super_admin,pmt_manager_others"/>
+              groups="pmt.pmt_manager,pmt_super_admin,pmt_manager_others,pmt_other_direct_md_functions"/>
 
     <menuitem name="ED's Assesments" id="pmt.ed_md_asses" parent="pmt.menu_root"
               action="pmt.md_ed_action" sequence="5"

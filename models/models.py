@@ -31,7 +31,7 @@ class pmt(models.Model):
 		[
 			('mid', 'Mid-Year Appraisals')
 		],
-		string='Apprisal-Duration', default='mid', required=True,)
+		string='Appraisal-Duration', default='mid', required=True,)
 	appraisal_line_id = fields.One2many("appraisal.line", "appraisal_id", string="Initial Task") 
 	appraisal_survey_line_id = fields.One2many('pmt.survey', 'appraisal_survey_id', string="Survey")
 	appraisalbh_line_id = fields.One2many('appraisalbh.line','appraisalbh_id', string="Initial Task")
@@ -401,9 +401,9 @@ class pmt(models.Model):
 			if record.state in ['coo', 'ed', 'md']:
 				record.write({'state': 'self'})
 			if record.state in ['hr']:
-				if record_user.has_group('pmt.pmt_user') and record_user.branch.name == 'Head Office':
+				if record_user.has_group('pmt.pmt_user') and record.branch.name == 'Head Office':
 					record.write({'state': 'hod'})
-				if record_user.has_group('pmt.pmt_user') and record_user.branch.name != 'Head Office': 
+				if record_user.has_group('pmt.pmt_user') and record.branch.name != 'Head Office': 
 					record.write({'state':'mbp'})
 				if record_user.has_group('pmt.pmt_manager'):
 					record.write({'state': 'coo'})
@@ -411,11 +411,20 @@ class pmt(models.Model):
 					record.write({'state':'ed'})
 				if record_user.has_group('pmt.pmt_coo') or record_user.has_group('pmt.pmt_other_direct_md_functions'):
 					record.write({'state': 'md'})
-			if record.state in ['mbp'] and record.job_level == 'officer':
-				record.write({'state':'manager'})
+				if record_user.has_group('pmt.pmt_mbp'):
+					record.write({'state': 'hod'})
 
-			if record.state in ['hod'] and record.job_level == 'mbp':
-				record.write({'state':'mbp'})
+			if record.state in ['mbp'] and record.job_level == 'officer' and record.branch != 'Head Office':
+				record.write({'state':'manager'})
+			
+			if record.state == 'hr' and record.job_level == 'manager' and record.branch != 'Head Office':
+				record.write({'state': 'mbp'})
+
+			if record.state == 'hod' and record.job_level == 'mbp':
+				record.write({'state': 'self'})
+
+			# if record.state in ['hod'] and record.job_level == 'mbp':
+			# 	record.write({'state':'mbp'})
 
 	@api.multi
 	def print_appraisal(self):

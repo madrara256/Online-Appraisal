@@ -150,22 +150,6 @@
 			<field name="groups" eval="[(4,ref('pmt.pmt_mbp'))]"/>
 		</record>
 
-
-		<!-- <record id="property_rule_hod" model="ir.rule">
-			<field name="name">Head Of Department Rules</field>
-			<field name="model_id" ref="model_pmt_main"/>
-			<field name="perm_create" eval="1"/>
-			<field name="perm_write" eval="1"/>
-			<field name="perm_read" eval="1"/>
-			<field name="perm_unlink" eval="0"/>
-			<field name="domain_force">
-				[
-					'|',('department_head', '=', user.id),('state', 'in', ['hod', 'self'])
-				]
-			</field>
-			<field name="groups" eval="[(4,ref('pmt.pmt_manager'))]"/>
-		</record> -->
-
 		<record id="property_rule_coo" model="ir.rule">
 			<field name="name">COO Rules</field>
 			<field name="model_id" ref="pmt.model_pmt_main"/>
@@ -197,20 +181,5 @@
 			</field>
 			<field name="groups" eval="[(4,ref('pmt.pmt_hr'))]"/>
 		</record>
-
-		<!-- <record id="property_rule_ed" model="ir.rule">
-			<field name="name">ED Rules</field>
-			<field name="model_id" ref="model_pmt_main"/>
-			<field name="perm_create" eval="1"/>
-			<field name="perm_write" eval="1"/>
-			<field name="perm_read" eval="1"/>
-			<field name="perm_unlink" eval="0"/>
-			<field name="domain_force">
-				[
-					('state', '=', 'ed')
-				]
-			</field>
-			<field name="groups" eval="[(4,ref('pmt.pmt_ed'))]"/>
-		</record> -->
 	</data>
 </odoo>
