@@ -225,9 +225,11 @@ class pmt(models.Model):
 		if self.env['res.users'].has_group('pmt.pmt_coo') and self.state not in ['self','coo']:
 			raise UserError(_('You are no longer Authorized to Modify this File \n'+
 				'Please Contact your Systems Administrator'))
+
 		if self.env['res.users'].has_group('pmt.pmt_mbp') and self.state not in ['self', 'mbp']:
 			raise UserError(_('You are no longer Authorized to Modify this File \n'+
 				'Please Contact Your Systems Administrator'))
+
 
 		rec = super(pmt, self).write(values)
 		
@@ -442,6 +444,15 @@ class pmt_appraisal_line(models.Model):
 	#----------------------------------------
 	#DATABASE
 	#----------------------------------------
+
+	@api.one
+	@api.constrains('evidence')
+	def _check_attachments(self):
+		for attachment in self.evidence:
+			if attachment.file_size > 10 * 1024 * 1024:
+				raise ValidationError(_('Only files smaller than 10 MBs are allowed'))
+			if attachment.mimetype not in ["application/pdf","image/jpeg"]:
+				raise ValidationError(_('Only Pdfs and Jpegs are allowed'))
 
 	name = fields.Char(string="Initial/Task/Planned Activity/Action")
 	appraisal_id = fields.Many2one("pmt.main", "Appraisal Reference", ondelete="cascade")
