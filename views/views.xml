@@ -106,7 +106,7 @@
                       <field name="targets"/>
                       <field name="net_weight" sum="Total Net Weight"/>
                       <field name="performance_level" invisible="1"/>
-                      <field name="evidence"/>
+                      <field name="evidence" widget="many2many_binary"/>
                       <field name="actual_level"/>           
                       <field name="total_score"/>
                       <field name="weighted_score" sum="weighted_score"/>
@@ -220,14 +220,14 @@
                     <tree editable="button">
                       <field name="perspective_id" options="{'no_create': True}"/>
                       <field name="name"/>
-                      <field name="targets"/>
+                      <field name="targets" invisible="0"/>
                       <field name="net_weight" sum="Total Net Weight"/>
                       <field name="performance_level" invisible="1"/>
-                      <field name="evidence"/>
-                      <field name="actual_level"/>           
+                      <field name="evidence" widget="many2many_binary"/>
+                      <field name="actual_level" invisible="0"/>           
                       <field name="total_score"/>
                       <field name="weighted_score" sum="weighted_score"/>
-                      <field name="comments"/>
+                      <field name="comments" invisible="0"/>
                     </tree>
                   </field>
 
@@ -336,7 +336,7 @@
                       <field name="targets"/>
                       <field name="net_weight" sum="Total Net Weight"/>
                       <field name="performance_level" invisible="1"/>
-                      <field name="evidence"/>
+                      <field name="evidence" widget="many2many_binary"/>
                       <field name="actual_level"/>           
                       <field name="total_score"/>
                       <field name="weighted_score" sum="weighted_score"/>
@@ -440,7 +440,7 @@
                       <field name="targets"/>
                       <field name="net_weight" sum="Total Net Weight"/>
                       <field name="performance_level" invisible="1"/>
-                      <field name="evidence"/>
+                      <field name="evidence" widget="many2many_binary"/>
                       <field name="actual_level"/>           
                       <field name="total_score"/>
                       <field name="weighted_score" sum="weighted_score"/>
@@ -544,7 +544,7 @@
                       <field name="targets"/>
                       <field name="net_weight" sum="Total Net Weight"/>
                       <field name="performance_level" invisible="1"/>
-                      <field name="evidence"/>
+                      <field name="evidence" widget="many2many_binary"/>
                       <field name="actual_level"/>           
                       <field name="total_score"/>
                       <field name="weighted_score" sum="weighted_score"/>
@@ -646,7 +646,7 @@
                       <field name="targets"/>
                       <field name="net_weight" sum="Total Net Weight"/>
                       <field name="performance_level" invisible="1"/>
-                      <field name="evidence"/>
+                      <field name="evidence" widget="many2many_binary"/>
                       <field name="actual_level"/>           
                       <field name="total_score"/>
                       <field name="weighted_score" sum="weighted_score"/>
@@ -749,11 +749,11 @@
                       <field name="targets"/>
                       <field name="net_weight" sum="Total Net Weight"/>
                       <field name="performance_level" invisible="1"/>
-                      <field name="evidence"/>
+                      <field name="evidence" widget="many2many_binary"/>
                       <field name="actual_level"/>           
                       <field name="total_score"/>
                       <field name="weighted_score" sum="weighted_score"/>
-                      <field name="comments"/>
+                      <field name="comments" invisible="0"/>
                     </tree>
                   </field>
 
@@ -776,7 +776,7 @@
                       <field name="section_rating" />
                       <field name="net_weight_bh" invisible="0"/>
                       <field name="weighted_score_bh" invisible="1"/>
-                      <field name="comments"/>
+                      <field name="comments" invisible="0"/>
                     </tree>
                   </field>
                   <group class="oe_subtotal oe_right">
@@ -849,7 +849,7 @@
                       <field name="targets"/>
                       <field name="net_weight" sum="Total Net Weight"/>
                       <field name="performance_level" invisible="1"/>
-                      <field name="evidence"/>
+                      <field name="evidence" widget="many2many_binary"/>
                       <field name="actual_level"/>           
                       <field name="total_score"/>
                       <field name="weighted_score" sum="weighted_score"/>
@@ -950,7 +950,7 @@
                       <field name="targets"/>
                       <field name="net_weight" sum="Total Net Weight"/>
                       <field name="performance_level" invisible="1"/>
-                      <field name="evidence"/>
+                      <field name="evidence" widget="many2many_binary"/>
                       <field name="actual_level"/>           
                       <field name="total_score"/>
                       <field name="weighted_score" sum="weighted_score"/>
@@ -1050,7 +1050,7 @@
                       <field name="targets"/>
                       <field name="net_weight" sum="Total Net Weight"/>
                       <field name="performance_level" invisible="1"/>
-                      <field name="evidence"/>
+                      <field name="evidence" widget="many2many_binary"/>
                       <field name="actual_level"/>           
                       <field name="total_score"/>
                       <field name="weighted_score" sum="weighted_score"/>
@@ -1352,7 +1352,7 @@
                       <field name="targets"/>
                       <field name="net_weight" sum="Total Net Weight"/>
                       <field name="performance_level" invisible="1"/>
-                      <field name="evidence"/>
+                      <field name="evidence" widget="many2many_binary"/>
                       <field name="actual_level"/>           
                       <field name="total_score"/>
                       <field name="weighted_score" sum="weighted_score"/>
@@ -1480,7 +1480,7 @@
                       <field name="targets"/>
                       <field name="net_weight" sum="Total Net Weight"/>
                       <field name="performance_level" invisible="1"/>
-                      <field name="evidence"/>
+                      <field name="evidence" widget="many2many_binary"/>
                       <field name="actual_level"/>           
                       <field name="total_score"/>
                       <field name="weighted_score" sum="weighted_score"/>
@@ -1679,7 +1679,7 @@
                       <field name="targets"/>
                       <field name="net_weight" sum="Total Net Weight"/>
                       <field name="performance_level" invisible="1"/>
-                      <field name="evidence"/>
+                      <field name="evidence" widget="many2many_binary"/>
                       <field name="actual_level"/>           
                       <field name="total_score"/>
                       <field name="weighted_score" sum="weighted_score"/>
@@ -1805,7 +1805,7 @@
                       <field name="targets"/>
                       <field name="net_weight" sum="Total Net Weight"/>
                       <field name="performance_level" invisible="1"/>
-                      <field name="evidence"/>
+                      <field name="evidence" widget="many2many_binary"/>
                       <field name="actual_level"/>           
                       <field name="total_score"/>
                       <field name="weighted_score" sum="weighted_score"/>

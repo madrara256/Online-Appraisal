@@ -455,7 +455,7 @@ class pmt_appraisal_line(models.Model):
 			(2,2)
 		],string="Performance Levels")
 	actual_level =  fields.Text(string="Actual Achievment")
-	evidence = fields.Text(string="Evidence")
+	evidence = fields.Many2many('ir.attachment', 'res_id', string="Evidence")
 	total_score = fields.Selection(
 		[
 			(10,10),
