@@ -12,6 +12,14 @@ class pmt(models.Model):
 	#-----------------------------------
 	#DATABASE
 	#-----------------------------------
+	@api.one
+	@api.constrains('attachment_ids')
+	def _check_attachments(self):
+		for attachment in self.attachment_ids:
+			if attachment.file_size > 10 * 1024 * 1024:
+				raise ValidationError(_('Only files smaller than 10 MBs are allowed'))
+			if attachment.mimetype not in ["application/pdf","image/jpeg"]:
+				raise ValidationError(_('Only Pdfs and Jpegs are allowed'))
 
 
 	@api.multi
@@ -59,7 +67,7 @@ class pmt(models.Model):
 	bom = fields.Many2one('res.users',string='Supervisor(BOM)')
 	mbp = fields.Many2one('res.users', string='Manager Branch Performance')
 	partner_id = fields.Many2one('res.partner', string='Partner')
-
+	attachment_ids = fields.Many2many('ir.attachment', 'pmt_main_id', string='Attach Evidence')
 
 	branch_value_holder = fields.Char(string='Placeholder', onchange='track_visibility')
 
@@ -445,15 +453,6 @@ class pmt_appraisal_line(models.Model):
 	#DATABASE
 	#----------------------------------------
 
-	@api.one
-	@api.constrains('evidence')
-	def _check_attachments(self):
-		for attachment in self.evidence:
-			if attachment.file_size > 10 * 1024 * 1024:
-				raise ValidationError(_('Only files smaller than 10 MBs are allowed'))
-			if attachment.mimetype not in ["application/pdf","image/jpeg"]:
-				raise ValidationError(_('Only Pdfs and Jpegs are allowed'))
-
 	name = fields.Char(string="Initial/Task/Planned Activity/Action")
 	appraisal_id = fields.Many2one("pmt.main", "Appraisal Reference", ondelete="cascade")
 	targets = fields.Text(string="Target & Measure/KPI")
@@ -466,7 +465,7 @@ class pmt_appraisal_line(models.Model):
 			(2,2)
 		],string="Performance Levels")
 	actual_level =  fields.Text(string="Actual Achievment")
-	evidence = fields.Many2many('ir.attachment', 'res_id', string="Evidence")
+	evidence = fields.Text(string="Evidence")
 	total_score = fields.Selection(
 		[
 			(10,10),

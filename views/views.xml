@@ -106,13 +106,15 @@
                       <field name="targets"/>
                       <field name="net_weight" sum="Total Net Weight"/>
                       <field name="performance_level" invisible="1"/>
-                      <field name="evidence" widget="many2many_binary"/>
+                      <field name="evidence"/>
                       <field name="actual_level"/>           
                       <field name="total_score"/>
                       <field name="weighted_score" sum="weighted_score"/>
                       <field name="comments"/>
                     </tree>
                   </field>
+
+                  <field name="attachment_ids" widget="many2many_binary"/>
 
                   <group class="oe_subtotal oe_right">
                     <field name="section_a_net_weight" class="oe_subtotal_footer_separator"/>
@@ -223,13 +225,14 @@
                       <field name="targets" invisible="0"/>
                       <field name="net_weight" sum="Total Net Weight"/>
                       <field name="performance_level" invisible="1"/>
-                      <field name="evidence" widget="many2many_binary"/>
+                      <field name="evidence"/>
                       <field name="actual_level" invisible="0"/>           
                       <field name="total_score"/>
                       <field name="weighted_score" sum="weighted_score"/>
                       <field name="comments" invisible="0"/>
                     </tree>
                   </field>
+                  <field name="attachment_ids" widget="many2many_binary"/>
 
                   <group class="oe_subtotal oe_right">
                     <field name="section_a_net_weight" class="oe_subtotal_footer_separator"/>
@@ -336,13 +339,14 @@
                       <field name="targets"/>
                       <field name="net_weight" sum="Total Net Weight"/>
                       <field name="performance_level" invisible="1"/>
-                      <field name="evidence" widget="many2many_binary"/>
+                      <field name="evidence"/>
                       <field name="actual_level"/>           
                       <field name="total_score"/>
                       <field name="weighted_score" sum="weighted_score"/>
                       <field name="comments"/>
                     </tree>
                   </field>
+                  <field name="attachment_ids" widget="many2many_binary"/>
 
                   <group class="oe_subtotal oe_right">
                     <field name="section_a_net_weight" class="oe_subtotal_footer_separator"/>
@@ -440,13 +444,14 @@
                       <field name="targets"/>
                       <field name="net_weight" sum="Total Net Weight"/>
                       <field name="performance_level" invisible="1"/>
-                      <field name="evidence" widget="many2many_binary"/>
+                      <field name="evidence"/>
                       <field name="actual_level"/>           
                       <field name="total_score"/>
                       <field name="weighted_score" sum="weighted_score"/>
                       <field name="comments"/>
                     </tree>
                   </field>
+                  <field name="attachment_ids" widget="many2many_binary"/>
 
                   <group class="oe_subtotal oe_right">
                     <field name="section_a_net_weight" class="oe_subtotal_footer_separator"/>
@@ -544,13 +549,14 @@
                       <field name="targets"/>
                       <field name="net_weight" sum="Total Net Weight"/>
                       <field name="performance_level" invisible="1"/>
-                      <field name="evidence" widget="many2many_binary"/>
+                      <field name="evidence"/>
                       <field name="actual_level"/>           
                       <field name="total_score"/>
                       <field name="weighted_score" sum="weighted_score"/>
                       <field name="comments"/>
                     </tree>
                   </field>
+                  <field name="attachment_ids" widget="many2many_binary"/>
 
                   <group class="oe_subtotal oe_right">
                     <field name="section_a_net_weight" class="oe_subtotal_footer_separator"/>
@@ -646,13 +652,14 @@
                       <field name="targets"/>
                       <field name="net_weight" sum="Total Net Weight"/>
                       <field name="performance_level" invisible="1"/>
-                      <field name="evidence" widget="many2many_binary"/>
+                      <field name="evidence"/>
                       <field name="actual_level"/>           
                       <field name="total_score"/>
                       <field name="weighted_score" sum="weighted_score"/>
                       <field name="comments"/>
                     </tree>
                   </field>
+                  <field name="attachment_ids" widget="many2many_binary"/>
 
                   <group class="oe_subtotal oe_right">
                     <field name="section_a_net_weight" class="oe_subtotal_footer_separator"/>
@@ -749,13 +756,14 @@
                       <field name="targets"/>
                       <field name="net_weight" sum="Total Net Weight"/>
                       <field name="performance_level" invisible="1"/>
-                      <field name="evidence" widget="many2many_binary"/>
+                      <field name="evidence"/>
                       <field name="actual_level"/>           
                       <field name="total_score"/>
                       <field name="weighted_score" sum="weighted_score"/>
                       <field name="comments" invisible="0"/>
                     </tree>
                   </field>
+                  <field name="attachment_ids" widget="many2many_binary"/>
 
                   <group class="oe_subtotal oe_right">
                     <field name="section_a_net_weight" class="oe_subtotal_footer_separator"/>
@@ -849,13 +857,14 @@
                       <field name="targets"/>
                       <field name="net_weight" sum="Total Net Weight"/>
                       <field name="performance_level" invisible="1"/>
-                      <field name="evidence" widget="many2many_binary"/>
+                      <field name="evidence"/>
                       <field name="actual_level"/>           
                       <field name="total_score"/>
                       <field name="weighted_score" sum="weighted_score"/>
                       <field name="comments"/>
                     </tree>
                   </field>
+                  <field name="attachment_ids" widget="many2many_binary"/>
 
                   <group class="oe_subtotal oe_right">
                     <field name="section_a_net_weight" class="oe_subtotal_footer_separator"/>
@@ -950,13 +959,14 @@
                       <field name="targets"/>
                       <field name="net_weight" sum="Total Net Weight"/>
                       <field name="performance_level" invisible="1"/>
-                      <field name="evidence" widget="many2many_binary"/>
+                      <field name="evidence"/>
                       <field name="actual_level"/>           
                       <field name="total_score"/>
                       <field name="weighted_score" sum="weighted_score"/>
                       <field name="comments"/>
                     </tree>
                   </field>
+                  <field name="attachment_ids" widget="many2many_binary"/>
 
                   <group class="oe_subtotal oe_right">
                     <field name="section_a_net_weight" class="oe_subtotal_footer_separator"/>
@@ -1050,13 +1060,14 @@
                       <field name="targets"/>
                       <field name="net_weight" sum="Total Net Weight"/>
                       <field name="performance_level" invisible="1"/>
-                      <field name="evidence" widget="many2many_binary"/>
+                      <field name="evidence"/>
                       <field name="actual_level"/>           
                       <field name="total_score"/>
                       <field name="weighted_score" sum="weighted_score"/>
                       <field name="comments"/>
                     </tree>
                   </field>
+                  <field name="attachment_ids" widget="many2many_binary"/>
 
                   <group class="oe_subtotal oe_right">
                     <field name="section_a_net_weight" class="oe_subtotal_footer_separator"/>
@@ -1352,13 +1363,14 @@
                       <field name="targets"/>
                       <field name="net_weight" sum="Total Net Weight"/>
                       <field name="performance_level" invisible="1"/>
-                      <field name="evidence" widget="many2many_binary"/>
+                      <field name="evidence"/>
                       <field name="actual_level"/>           
                       <field name="total_score"/>
                       <field name="weighted_score" sum="weighted_score"/>
                       <field name="comments"/>
                     </tree>
                   </field>
+                  <field name="attachment_ids" widget="many2many_binary"/>
 
                   <group class="oe_subtotal oe_right">
                     <field name="section_a_net_weight" class="oe_subtotal_footer_separator"/>
@@ -1480,13 +1492,14 @@
                       <field name="targets"/>
                       <field name="net_weight" sum="Total Net Weight"/>
                       <field name="performance_level" invisible="1"/>
-                      <field name="evidence" widget="many2many_binary"/>
+                      <field name="evidence"/>
                       <field name="actual_level"/>           
                       <field name="total_score"/>
                       <field name="weighted_score" sum="weighted_score"/>
                       <field name="comments"/>
                     </tree>
                   </field>
+                  <field name="attachment_ids" widget="many2many_binary"/>
 
                   <group class="oe_subtotal oe_right">
                     <field name="section_a_net_weight" class="oe_subtotal_footer_separator"/>
@@ -1679,13 +1692,14 @@
                       <field name="targets"/>
                       <field name="net_weight" sum="Total Net Weight"/>
                       <field name="performance_level" invisible="1"/>
-                      <field name="evidence" widget="many2many_binary"/>
+                      <field name="evidence"/>
                       <field name="actual_level"/>           
                       <field name="total_score"/>
                       <field name="weighted_score" sum="weighted_score"/>
                       <field name="comments"/>
                     </tree>
                   </field>
+                  <field name="attachment_ids" widget="many2many_binary"/>
 
                   <group class="oe_subtotal oe_right">
                     <field name="section_a_net_weight" class="oe_subtotal_footer_separator"/>
@@ -1805,13 +1819,14 @@
                       <field name="targets"/>
                       <field name="net_weight" sum="Total Net Weight"/>
                       <field name="performance_level" invisible="1"/>
-                      <field name="evidence" widget="many2many_binary"/>
+                      <field name="evidence"/>
                       <field name="actual_level"/>           
                       <field name="total_score"/>
                       <field name="weighted_score" sum="weighted_score"/>
                       <field name="comments"/>
                     </tree>
                   </field>
+                  <field name="attachment_ids" widget="many2many_binary"/>
 
                   <group class="oe_subtotal oe_right">
                     <field name="section_a_net_weight" class="oe_subtotal_footer_separator"/>
