@@ -385,8 +385,11 @@ class pmt(models.Model):
 			if record.state == 'supervisor' and record.job_level == 'officer':
 				record.write({'state': 'self'})
 
-			if record.state == 'manager' and record.job_level == 'officer':
+			if record.state == 'manager' and record.job_level == 'officer' and record.branch.name != 'Head Office':
 				record.write({'state': 'supervisor'})
+
+			if record.state == 'manager' and record.job_level == 'officer' and record.branch.name == 'Head Office':
+				record.write({'state': 'self'})
 
 			if record.state == 'manager' and record.job_level == 'bom':
 				record.write({'state': 'self'})
